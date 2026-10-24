@@ -1,5 +1,5 @@
 {
-  "_ajuda": "Cadastro do Painel Sobé. status: ativo | pausado | arquivado. segmento: Geral | Infoproduto. responsavel: quem atende. formato diz ao coletor como ler os dados do dash (template, embed, cidades, unibrasil). pagina = arquivo HTML lido no formato embed (padrão: index). somar = outros repos somados neste cliente.",
+  "_ajuda": "Cadastro do Painel Sobé. status: ativo | pausado | arquivado. segmento: Geral | Infoproduto. responsavel: quem atende. formato diz ao coletor como ler os dados do dash (template, embed, cidades, unibrasil). pagina = arquivo HTML lido no formato embed (padrão: index). somar = outros repos somados neste cliente. moedas = moeda por plataforma quando difere da do dash (ex.: {\"google\": \"USD\"}).",
   "ferramentas": [
     {
       "nome": "Mapa Mental",
@@ -59,7 +59,10 @@
           "label": "Planejamento",
           "url": "https://mggastal.github.io/sobe_adopt/planejamento.html"
         }
-      ]
+      ],
+      "moedas": {
+        "google": "USD"
+      }
     },
     {
       "repo": "sobe_quest",

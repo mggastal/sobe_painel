@@ -138,7 +138,16 @@ def extrair_const(html, nome):
 
 
 CONSTS = ("META_DAILY", "GOOGLE_DAILY", "USAR_GOOGLE", "LI_DAILY", "USAR_LINKEDIN", "LINKEDIN_RAW",
-          "TIKTOK_DAILY", "TT_DAILY", "HOT_DAILY", "HOTMART", "DATA_GERACAO", "MOEDA_SIMBOLO", "LANCAMENTO_COD")
+          "TIKTOK_DAILY", "TT_DAILY", "HOT_DAILY", "HOTMART", "DATA_GERACAO", "MOEDA_SIMBOLO", "MOEDA_COD",
+          "MOEDA", "LANCAMENTO_COD")
+
+
+def moeda_cod(cod=None, simbolo=None):
+    """Código ISO da moeda do dash (padrão BRL)."""
+    if cod:
+        return str(cod).upper()
+    sim = str(simbolo or "").strip()
+    return {"$": "USD", "US$": "USD", "U$": "USD", "€": "EUR"}.get(sim, "BRL")
 
 
 def ref_de(gerado):
@@ -154,7 +163,8 @@ def ler_fonte(repo, fmt, pagina, acc):
     if fmt == "embed":
         html = baixar(f"{PAGES}/{repo}/{pagina or ''}")
         d = {k: extrair_const(html, k) for k in CONSTS}
-        info = {"gerado": d.get("DATA_GERACAO"), "moeda": d.get("MOEDA_SIMBOLO"), "lancamento": d.get("LANCAMENTO_COD")}
+        info = {"gerado": d.get("DATA_GERACAO"), "lancamento": d.get("LANCAMENTO_COD"),
+                "moeda_cod": moeda_cod(d.get("MOEDA_COD"), d.get("MOEDA_SIMBOLO") or d.get("MOEDA"))}
         ler_template(d, acc, ref_de(info["gerado"]))
         return info
     d = json.loads(baixar(f"{PAGES}/{repo}/data.json"))
@@ -163,7 +173,7 @@ def ler_fonte(repo, fmt, pagina, acc):
         ler_unibrasil(d, acc, ref_de(info["gerado"]))
     elif fmt == "cidades":
         cid = d.get((d.get("_META") or {}).get("cidade_padrao")) or {}
-        info = {"gerado": cid.get("DATA_GERACAO"), "moeda": cid.get("MOEDA_SIMBOLO")}
+        info = {"gerado": cid.get("DATA_GERACAO"), "moeda_cod": moeda_cod(cid.get("MOEDA_COD"), cid.get("MOEDA_SIMBOLO"))}
         for chave in (d.get("_META") or {}).get("cidades", {}):
             if chave in d:
                 ler_template(d[chave], acc, ref_de(info["gerado"]))
@@ -171,7 +181,8 @@ def ler_fonte(repo, fmt, pagina, acc):
         # só o acumulado do lançamento (sem série diária)
         info = {"gerado": d.get("atualizado"), "lancamento": d.get("lancamento"), "kpis": d.get("kpis")}
     else:
-        info = {"gerado": d.get("DATA_GERACAO"), "moeda": d.get("MOEDA_SIMBOLO"), "lancamento": d.get("LANCAMENTO_COD")}
+        info = {"gerado": d.get("DATA_GERACAO"), "lancamento": d.get("LANCAMENTO_COD"),
+                "moeda_cod": moeda_cod(d.get("MOEDA_COD"), d.get("MOEDA_SIMBOLO"))}
         ler_template(d, acc, ref_de(info["gerado"]))
     return info
 
@@ -236,6 +247,10 @@ def coletar(c):
             erros.append(f"{repo}: {type(e).__name__}: {str(e)[:120]}")
         wfs.append(workflow(repo) or {})
     out.update(resumir(acc))
+    # moeda por plataforma: o cadastro manda (ex.: Adopt Google em USD), senão a moeda do dash
+    padrao = out.pop("moeda_cod", None) or "BRL"
+    out["moedas"] = {p: (c.get("moedas") or {}).get(p) or padrao for p in out.get("plataformas", [])}
+    out["moeda_vendas"] = (c.get("moedas") or {}).get("vendas") or padrao
     out["ok"] = not erros
     if erros:
         out["erro"] = " | ".join(erros)
@@ -244,6 +259,19 @@ def coletar(c):
     datas = [w["quando"] for w in wfs if w.get("quando")]
     out["workflow"] = {"conclusao": "failure" if falhas else (wfs[0].get("conclusao") if wfs else None),
                        "quando": min(datas) if datas else None}
+    return out
+
+
+def cambio():
+    """Cotação diária (compra) em R$ das moedas estrangeiras, para os totais convertidos."""
+    out = {}
+    for m in ("USD", "EUR"):
+        try:
+            lst = json.loads(baixar(f"https://economia.awesomeapi.com.br/json/daily/{m}-BRL/150"))
+            out[m] = {datetime.fromtimestamp(int(x["timestamp"]), BRT).date().isoformat(): round(float(x["bid"]), 4)
+                      for x in lst}
+        except Exception as e:
+            print("cotação", m, "falhou:", e)
     return out
 
 
@@ -256,7 +284,7 @@ def main():
         print(f"{c['repo']:<22} {'ok ' if r['ok'] else 'ERRO'} ultimo={r.get('ultimo_dia', '-')} "
               f"plats={','.join(r.get('plataformas', []))} vendas={r.get('tem_vendas', False)} "
               f"wf={r['workflow'].get('conclusao')}", r.get("erro", ""))
-    status = {"gerado_em": datetime.now(BRT).isoformat(timespec="seconds"), "clientes": res}
+    status = {"gerado_em": datetime.now(BRT).isoformat(timespec="seconds"), "cambio": cambio(), "clientes": res}
     with open(os.path.join(base, "status.json"), "w", encoding="utf-8") as f:
         json.dump(status, f, ensure_ascii=False, separators=(",", ":"))
     print("status.json:", os.path.getsize(os.path.join(base, "status.json")) // 1024, "KB")

@@ -248,7 +248,7 @@ th i,td i.dot{display:inline-block;width:8px;height:8px;border-radius:2px;margin
   </section>
 
   <section class="page" id="p-meses">
-    <div class="sec-h"><div><h2>Investimento por mês</h2><div class="sub">Últimos 6 meses, clientes ativos e pausados. O filtro de plataforma vale aqui também.</div></div></div>
+    <div class="sec-h"><div><h2>Investimento por mês</h2><div class="sub">Últimos 6 meses, clientes ativos e pausados, cada um na sua moeda. Totais em R$ (dólar pela cotação média do mês).</div></div></div>
     <div class="tbl-w" id="meses"></div>
   </section>
 
@@ -308,6 +308,24 @@ const PAGES = "https://mggastal.github.io";
 const LS_DRAFT = "sobe_painel_rascunho", LS_SESSAO = "sobe_painel_sessao", LS_THEME = "sobe_painel_tema", LS_PER = "sobe_painel_periodo";
 const PLATS = {meta:"Meta", google:"Google", linkedin:"LinkedIn", tiktok:"TikTok"};
 const PER_LBL = {"7d":"7 dias", "30d":"30 dias", "mes":"Mês atual", "mesant":"Mês anterior"};
+const SIMB = {BRL:"R$", USD:"US$", EUR:"€"};
+const simb = cod => SIMB[cod] || cod || "R$";
+/* cotação em R$ do dia (ou do último dia útil antes dele) */
+const _taxas = {};
+function taxa(moeda, dia){
+  if (!moeda || moeda === "BRL") return 1;
+  const tab = (ST.cambio || {})[moeda]; if (!tab) return 1;
+  const k = moeda + dia; if (_taxas[k]) return _taxas[k];
+  const datas = Object.keys(tab).sort(); let v = tab[datas[datas.length-1]];
+  for (let i = datas.length-1; i >= 0; i--) if (datas[i] <= dia){ v = tab[datas[i]]; break; }
+  if (dia < datas[0]) v = tab[datas[0]];
+  return _taxas[k] = v;
+}
+function taxaMes(moeda, ym){
+  if (!moeda || moeda === "BRL") return 1;
+  const tab = (ST.cambio || {})[moeda] || {}, xs = Object.entries(tab).filter(([d]) => d.startsWith(ym)).map(e => e[1]);
+  return xs.length ? xs.reduce((a,b) => a+b, 0)/xs.length : taxa(moeda, ym + "-15");
+}
 
 let CAD = null, CAD_PUB = null;
 let ST = {clientes:{}};
@@ -364,13 +382,20 @@ function janelas(){
 }
 const platsAtivas = s => (s.plataformas || []).filter(p => plat === "todas" || p === plat);
 
-/* soma um intervalo: {sp, cv, imp, clk, vd, fat, por:{plat: sp}} */
+/* soma um intervalo. Cada plataforma fica na sua moeda (por / moedaP); *R = convertido em R$ pela cotação do dia.
+   sp/fat e mo: na moeda do cliente quando todas as plataformas usam a mesma, senão em R$. */
 function agg(s, [de, ate]){
-  const r = {sp:0, cv:0, imp:0, clk:0, vd:0, fat:0, por:{}};
+  const r = {sp:0, spR:0, cv:0, imp:0, clk:0, vd:0, fat:0, fatR:0, por:{}, porR:{}, moedaP:{}, mo:"BRL"};
   if (!s || !s.serie) return r;
-  const dias = s.serie.dias;
-  platsAtivas(s).forEach(p => { let t = 0; s.serie[p].forEach((v,i) => { if (dias[i] >= de && dias[i] <= ate){ t += v[0]; r.cv += v[1]; r.imp += v[2]||0; r.clk += v[3]||0; } }); r.por[p] = t; r.sp += t; });
-  if (plat === "todas" && s.serie._vendas) s.serie._vendas.forEach((v,i) => { if (dias[i] >= de && dias[i] <= ate){ r.vd += v[0]; r.fat += v[1]; } });
+  const dias = s.serie.dias, md = s.moedas || {}, ps = platsAtivas(s);
+  ps.forEach(p => { let t = 0, tR = 0; const mp = md[p] || "BRL"; r.moedaP[p] = mp;
+    s.serie[p].forEach((v,i) => { if (dias[i] >= de && dias[i] <= ate){ t += v[0]; tR += v[0]*taxa(mp, dias[i]); r.cv += v[1]; r.imp += v[2]||0; r.clk += v[3]||0; } });
+    r.por[p] = t; r.porR[p] = tR; r.spR += tR; });
+  const moedas = [...new Set(ps.map(p => md[p] || "BRL"))];
+  r.mo = moedas.length === 1 ? moedas[0] : "BRL";
+  r.sp = moedas.length === 1 ? ps.reduce((a,p) => a + r.por[p], 0) : r.spR;
+  if (plat === "todas" && s.serie._vendas){ const mv = s.moeda_vendas || "BRL";
+    s.serie._vendas.forEach((v,i) => { if (dias[i] >= de && dias[i] <= ate){ r.vd += v[0]; r.fatR += v[1]*taxa(mv, dias[i]); r.fat += v[1]*(mv === r.mo ? 1 : taxa(mv, dias[i])/taxa(r.mo, dias[i])); } }); }
   return r;
 }
 
@@ -390,10 +415,12 @@ async function carregar(){
 /* ---------- métricas por cliente ---------- */
 function metr(c){
   const s = ST.clientes[c.repo] || {}, J = janelas();
-  const m = {s, moeda: s.moeda || "R$", A: agg(s, J.a), B: agg(s, J.b), vendas: !!s.tem_vendas && plat === "todas"};
+  const m = {s, A: agg(s, J.a), B: agg(s, J.b), vendas: !!s.tem_vendas && plat === "todas"};
+  m.moeda = simb(m.A.mo); m.misto = new Set(Object.values(m.A.moedaP)).size > 1;
   if (s.serie){
     const hoje = hojeBRT(), ini = addDias(hoje,-29), dias = s.serie.dias;
-    m.spark = dias.map((d,i) => [d, platsAtivas(s).reduce((a,p) => a + s.serie[p][i][0], 0)]).filter(x => x[0] >= ini && x[0] <= hoje);
+    const md = s.moedas || {}, conv = m.A.mo === "BRL";
+    m.spark = dias.map((d,i) => [d, platsAtivas(s).reduce((a,p) => a + s.serie[p][i][0] * (conv ? taxa(md[p], d) : 1), 0)]).filter(x => x[0] >= ini && x[0] <= hoje);
   }
   m.lct = typeof s.lancamento === "string" ? s.lancamento : "";
   m.saude = saude(c, s);
@@ -419,10 +446,12 @@ function stackHTML(por, total, sm){
   if (!total) return `<div class="stack${sm?" sm":""}"></div>`;
   return `<div class="stack${sm?" sm":""}">${ps.map(p => `<span style="width:${por[p]/total*100}%;background:var(--${p})" title="${PLATS[p]}"></span>`).join("")}</div>`;
 }
-function legHTML(por, total, moeda, sm){
+function legHTML(por, total, moedaP, sm, porR){
   const ps = Object.keys(PLATS).filter(p => por[p] > 0);
   if (!ps.length) return `<div class="leg${sm?" sm":""}"><span class="nota">Sem investimento no período</span></div>`;
-  return `<div class="leg${sm?" sm":""}">${ps.map(p => `<span><i style="background:var(--${p})"></i>${PLATS[p]} <b>${sm ? brlK(por[p], moeda) : brl(por[p], moeda)}</b>${sm ? "" : ` · ${Math.round(por[p]/total*100)}%`}</span>`).join("")}</div>`;
+  const pr = porR || por;
+  return `<div class="leg${sm?" sm":""}">${ps.map(p => { const mo = simb(typeof moedaP === "string" ? moedaP : moedaP[p]);
+    return `<span><i style="background:var(--${p})"></i>${PLATS[p]} <b>${sm ? brlK(por[p], mo) : brl(por[p], mo)}</b>${sm ? "" : ` · ${Math.round(pr[p]/total*100)}%`}</span>`; }).join("")}</div>`;
 }
 function sparkSVG(pts, moeda){
   if (!pts || !pts.length) return "";
@@ -474,9 +503,9 @@ function cardHTML(c){
   if (m.vendas) corpo += `<div class="c-m v">
       ${metrica("Vendas", int(A.vd), delta(A.vd, B.vd))}
       ${metrica("Faturamento", brlK(A.fat, mo), delta(A.fat, B.fat))}
-      ${metrica("ROAS", A.sp && A.fat ? nf2.format(A.fat/A.sp) + "x" : "—", "")}
+      ${metrica("ROAS", A.spR && A.fatR ? nf2.format(A.fatR/A.spR) + "x" : "—", "")}
     </div>`;
-  corpo += `<div>${stackHTML(A.por, A.sp, true)}${legHTML(A.por, A.sp, mo, true)}</div>`;
+  corpo += `<div>${stackHTML(A.porR, A.spR, true)}${legHTML(A.por, A.spR, A.moedaP, true, A.porR)}${m.misto ? `<div class="nota" style="margin-top:4px">Moedas diferentes por plataforma: totais em R$ pela cotação do dia.</div>` : ""}</div>`;
   if (m.spark) corpo += `<div><div class="spark">${sparkSVG(m.spark, mo)}</div><div class="spark-l"><span>Investimento diário · últimos 30 dias</span></div></div>`;
   if (m.s.ok === false) corpo = `<div class="empty" style="padding:18px">Não consegui ler os dados deste dash.</div>`;
   const badges = [c.status === "pausado" && sa.cls !== "neu" ? `<span class="pill neu">Pausado</span>` : "", m.lct ? `<span class="pill neu">${esc(m.lct)}</span>` : ""].join("");
@@ -493,10 +522,12 @@ const filtrados = () => visiveis().filter(c => (filtroSeg === "Todos" || (c.segm
 const subtitulo = c => [c.tipo, c.responsavel].filter(Boolean).map(esc).join(" · ");
 
 function totais(){
+  // totais da agência sempre em R$ (moeda estrangeira convertida pela cotação do dia)
   const T = {A:{sp:0,cv:0,imp:0,clk:0,vd:0,fat:0,por:{}}, B:{sp:0,cv:0,imp:0,clk:0,vd:0,fat:0,por:{}}};
   const linhas = filtrados().map(c => [c, metr(c)]);
   linhas.forEach(([c,m]) => ["A","B"].forEach(k => { const x = m[k], t = T[k];
-    ["sp","cv","imp","clk","vd","fat"].forEach(f => t[f] += x[f]); Object.entries(x.por).forEach(([p,v]) => t.por[p] = (t.por[p]||0) + v); }));
+    t.sp += x.spR; t.fat += x.fatR; ["cv","imp","clk","vd"].forEach(f => t[f] += x[f]); Object.entries(x.porR).forEach(([p,v]) => t.por[p] = (t.por[p]||0) + v); }));
+  T.estrangeira = linhas.some(([c,m]) => Object.values(m.A.moedaP).some(x => x !== "BRL"));
   return {T, linhas};
 }
 function renderKpis(){
@@ -510,7 +541,7 @@ function renderKpis(){
     <div class="kpi"><div class="kpi-l">Vendas · faturamento</div><div class="kpi-v">${temVendas ? int(A.vd) + ' <span style="font-size:14px;color:var(--muted);font-weight:600">· ' + brlK(A.fat) + "</span>" : "—"}</div><div class="kpi-s">${temVendas ? delta(A.fat,B.fat) + " no faturamento · clientes com Hotmart" : plat === "todas" ? "nenhum cliente com vendas" : "vendas não se dividem por plataforma"}</div></div>
     <div class="kpi"><div class="kpi-l">Clientes</div><div class="kpi-v">${ativos}<span style="font-size:14px;color:var(--muted);font-weight:600"> ativos${paus ? " · " + paus + " pausado" + (paus>1?"s":"") : ""}</span></div>
       <div class="kpi-s">${alertas.length ? `<span class="d-down">${alertas.length} com alerta</span>: ${alertas.map(([c]) => esc(c.nome)).slice(0,3).join(", ")}${alertas.length>3?"…":""}` : '<span class="d-up">todos os dashs em dia</span>'}</div></div>`;
-  $("#platBar").innerHTML = `<div class="kpi-l" style="margin-bottom:9px">Investimento por plataforma · ${PER_LBL[periodo]}</div>${stackHTML(A.por, A.sp)}${legHTML(A.por, A.sp, "R$")}`;
+  $("#platBar").innerHTML = `<div class="kpi-l" style="margin-bottom:9px">Investimento por plataforma · ${PER_LBL[periodo]}</div>${stackHTML(A.por, A.sp)}${legHTML(A.por, A.sp, "BRL")}${T.estrangeira ? `<div class="nota" style="margin-top:6px">Totais em R$. Investimento em dólar convertido pela cotação de cada dia (US$ 1 = R$ ${nf2.format(taxa("USD", hojeBRT()))} hoje).</div>` : ""}`;
 }
 function renderGrid(){
   const q = $("#busca").value.trim().toLowerCase(), ord = $("#ordem").value;
@@ -529,24 +560,24 @@ function colunas(){
     {k:"nome", t:"Cliente", v:r => r.c.nome, f:r => esc(r.c.nome), txt:true},
     {k:"resp", t:"Responsável", v:r => r.c.responsavel || "", f:r => esc(r.c.responsavel || "—"), l:true, txt:true},
     {k:"saude", t:"Situação", v:r => r.m.saude.n, f:r => `<span class="pill ${r.m.saude.cls}">${esc(r.m.saude.txt)}</span>`, l:true},
-    {k:"inv", t:"Investimento", v:r => r.A.sp, f:r => brl(r.A.sp, r.m.moeda), sum:"sp"},
+    {k:"inv", t:"Investimento", csv:"Investimento (R$)", v:r => r.A.spR, f:r => brl(r.A.sp, r.m.moeda), sum:"sp"},
     {k:"dinv", t:"Δ invest.", v:r => pct(r.A.sp, r.B.sp) ?? -1e9, f:r => delta(r.A.sp, r.B.sp)},
   ];
-  if (plat === "todas" && ps.length > 1) ps.forEach(p => cols.push({k:"p_"+p, t:`<i style="background:var(--${p})"></i>${PLATS[p]}`, csv:PLATS[p], v:r => r.A.por[p]||0, f:r => r.A.por[p] ? brl(r.A.por[p], r.m.moeda) : "—", z:r => !r.A.por[p], sumP:p, cls:p===ps[0]?"sep":""}));
+  if (plat === "todas" && ps.length > 1) ps.forEach(p => cols.push({k:"p_"+p, t:`<i style="background:var(--${p})"></i>${PLATS[p]}`, csv:PLATS[p] + " (R$)", v:r => r.A.porR[p]||0, f:r => r.A.por[p] ? brl(r.A.por[p], simb(r.A.moedaP[p])) : "—", z:r => !r.A.por[p], sumP:p, cls:p===ps[0]?"sep":""}));
   cols.push(
     {k:"imp", t:"Impressões", v:r => r.A.imp, f:r => r.A.imp ? int(r.A.imp) : "—", sum:"imp", cls:"sep"},
     {k:"clk", t:"Cliques", v:r => r.A.clk, f:r => r.A.clk ? int(r.A.clk) : "—", sum:"clk"},
     {k:"ctr", t:"CTR", v:r => r.A.imp ? r.A.clk/r.A.imp : 0, f:r => r.A.imp ? nf2.format(r.A.clk/r.A.imp*100) + "%" : "—", tot:T => T.imp ? nf2.format(T.clk/T.imp*100) + "%" : "—"},
-    {k:"cpm", t:"CPM", v:r => r.A.imp ? r.A.sp/r.A.imp*1000 : 0, f:r => r.A.imp ? brl(r.A.sp/r.A.imp*1000, r.m.moeda) : "—", tot:T => T.imp ? brl(T.sp/T.imp*1000) : "—"},
-    {k:"cpc", t:"CPC", v:r => r.A.clk ? r.A.sp/r.A.clk : 0, f:r => r.A.clk ? brl(r.A.sp/r.A.clk, r.m.moeda) : "—", tot:T => T.clk ? brl(T.sp/T.clk) : "—"},
+    {k:"cpm", t:"CPM", csv:"CPM (R$)", v:r => r.A.imp ? r.A.spR/r.A.imp*1000 : 0, f:r => r.A.imp ? brl(r.A.sp/r.A.imp*1000, r.m.moeda) : "—", tot:T => T.imp ? brl(T.sp/T.imp*1000) : "—"},
+    {k:"cpc", t:"CPC", csv:"CPC (R$)", v:r => r.A.clk ? r.A.spR/r.A.clk : 0, f:r => r.A.clk ? brl(r.A.sp/r.A.clk, r.m.moeda) : "—", tot:T => T.clk ? brl(T.sp/T.clk) : "—"},
     {k:"cv", t:"Conversões", v:r => r.A.cv, f:r => r.A.cv ? int(r.A.cv) : "—", sum:"cv", cls:"sep"},
     {k:"dcv", t:"Δ conv.", v:r => pct(r.A.cv, r.B.cv) ?? -1e9, f:r => r.A.cv || r.B.cv ? delta(r.A.cv, r.B.cv) : "—"},
-    {k:"cpa", t:"Custo/conv.", v:r => r.A.cv ? r.A.sp/r.A.cv : 0, f:r => r.A.cv ? brl(r.A.sp/r.A.cv, r.m.moeda) : "—", tot:T => T.cv ? brl(T.sp/T.cv) : "—"},
+    {k:"cpa", t:"Custo/conv.", csv:"Custo/conv. (R$)", v:r => r.A.cv ? r.A.spR/r.A.cv : 0, f:r => r.A.cv ? brl(r.A.sp/r.A.cv, r.m.moeda) : "—", tot:T => T.cv ? brl(T.sp/T.cv) : "—"},
   );
   if (plat === "todas") cols.push(
     {k:"vd", t:"Vendas", v:r => r.A.vd, f:r => r.m.vendas ? int(r.A.vd) : "—", sum:"vd", cls:"sep"},
-    {k:"fat", t:"Faturamento", v:r => r.A.fat, f:r => r.m.vendas ? brl(r.A.fat, r.m.moeda) : "—", sum:"fat"},
-    {k:"roas", t:"ROAS", v:r => r.A.sp && r.m.vendas ? r.A.fat/r.A.sp : 0, f:r => r.m.vendas && r.A.sp ? nf2.format(r.A.fat/r.A.sp) + "x" : "—"},
+    {k:"fat", t:"Faturamento", csv:"Faturamento (R$)", v:r => r.A.fatR, f:r => r.m.vendas ? brl(r.A.fat, r.m.moeda) : "—", sum:"fat"},
+    {k:"roas", t:"ROAS", v:r => r.A.spR && r.m.vendas ? r.A.fatR/r.A.spR : 0, f:r => r.m.vendas && r.A.spR ? nf2.format(r.A.fatR/r.A.spR) + "x" : "—"},
   );
   return cols;
 }
@@ -586,7 +617,10 @@ function renderMeses(){
   const v = (c, ym, p) => ((ST.clientes[c.repo].meses_plat || {})[p] || {})[ym] || 0;
   const linhas = lst.map(c => {
     const s = ST.clientes[c.repo], ps = (s.plataformas || []).filter(p => plat === "todas" || p === plat);
-    return `<tr><td>${esc(c.nome)}</td>${yms.map((ym,i) => { let t = 0; ps.forEach(p => { const x = v(c, ym, p); t += x; porP[p] = porP[p] || yms.map(() => 0); porP[p][i] += x; }); tot[i] += t; return `<td class="${t?"":"z"}">${t ? brl(t) : "—"}</td>`; }).join("")}</tr>`;
+    const md = s.moedas || {}, moedas = [...new Set(ps.map(p => md[p] || "BRL"))], unica = moedas.length === 1 ? moedas[0] : "BRL";
+    return `<tr><td>${esc(c.nome)}${unica !== "BRL" ? ` <span class="nota">${simb(unica)}</span>` : ""}</td>${yms.map((ym,i) => { let t = 0, tR = 0;
+      ps.forEach(p => { const x = v(c, ym, p), xR = x * taxaMes(md[p] || "BRL", ym); tR += xR; t += unica === "BRL" ? xR : x; porP[p] = porP[p] || yms.map(() => 0); porP[p][i] += xR; });
+      tot[i] += tR; return `<td class="${t?"":"z"}">${t ? brl(t, simb(unica)) : "—"}</td>`; }).join("")}</tr>`;
   });
   const pl = Object.keys(PLATS).filter(p => porP[p] && porP[p].some(x => x));
   $("#meses").innerHTML = `<table><thead><tr><th>Cliente</th>${yms.map(ym => `<th>${mesLbl(ym)}${ym === ymHoje ? " (parcial)" : ""}</th>`).join("")}</tr></thead>

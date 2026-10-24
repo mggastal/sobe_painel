@@ -61,7 +61,8 @@
         }
       ],
       "moedas": {
-        "google": "USD"
+        "google": "USD",
+        "linkedin": "USD"
       }
     },
     {
@@ -95,7 +96,10 @@
           "label": "Webinar",
           "url": "https://mggastal.github.io/sobe_microkids/webinar.html"
         }
-      ]
+      ],
+      "moedas": {
+        "linkedin": "USD"
+      }
     },
     {
       "repo": "sobe_gemte",

@@ -23,20 +23,7 @@
       "formato": "unibrasil",
       "cor": "#1d4ed8",
       "logo": true,
-      "links": [
-        {
-          "label": "Mestrado & Doutorado",
-          "url": "https://mggastal.github.io/sobe_unibrasil_ppgd/"
-        },
-        {
-          "label": "Planejamento 2027/1",
-          "url": "https://mggastal.github.io/sobe_unibrasil/planejamento_2027-1.html"
-        },
-        {
-          "label": "Resumo 2024",
-          "url": "https://mggastal.github.io/sobe_unibrasil/resumo_2024.html"
-        }
-      ],
+      "links": [],
       "somar": [
         {
           "repo": "sobe_unibrasil_ppgd",
@@ -54,12 +41,7 @@
       "formato": "embed",
       "cor": "#02C028",
       "logo": true,
-      "links": [
-        {
-          "label": "Planejamento",
-          "url": "https://mggastal.github.io/sobe_adopt/planejamento.html"
-        }
-      ],
+      "links": [],
       "moedas": {
         "google": "USD",
         "linkedin": "USD"
@@ -87,16 +69,7 @@
       "formato": "template",
       "cor": "#AD96DC",
       "logo": true,
-      "links": [
-        {
-          "label": "Relatório de captações",
-          "url": "https://mggastal.github.io/sobe_microkids/captacoes.html"
-        },
-        {
-          "label": "Webinar",
-          "url": "https://mggastal.github.io/sobe_microkids/webinar.html"
-        }
-      ],
+      "links": [],
       "moedas": {
         "linkedin": "USD"
       }
@@ -111,12 +84,7 @@
       "formato": "embed",
       "cor": "#215F50",
       "logo": true,
-      "links": [
-        {
-          "label": "Mapa mental",
-          "url": "https://mggastal.github.io/sobe_gemte/mapamental.html"
-        }
-      ]
+      "links": []
     },
     {
       "repo": "sobe_drg",
@@ -176,20 +144,7 @@
       "formato": "embed",
       "cor": "#0ea5e9",
       "logo": false,
-      "links": [
-        {
-          "label": "Perpétuo POPList",
-          "url": "https://mggastal.github.io/sobe_dra_monica/perpetuo.html"
-        },
-        {
-          "label": "RDC04 (encerrado)",
-          "url": "https://mggastal.github.io/sobe_dra_monica/RDC04.html"
-        },
-        {
-          "label": "Geral",
-          "url": "https://mggastal.github.io/sobe_dra_monica/geral.html"
-        }
-      ],
+      "links": [],
       "pagina": "perpetuo.html"
     },
     {
@@ -202,12 +157,7 @@
       "formato": "embed",
       "cor": "#C1994B",
       "logo": true,
-      "links": [
-        {
-          "label": "A Quebra 02",
-          "url": "https://mggastal.github.io/sobe_rafa_rovani/aquebra02.html"
-        }
-      ]
+      "links": []
     },
     {
       "repo": "sobe_little_motf01",
@@ -231,12 +181,7 @@
       "formato": "template",
       "cor": "#0ea5e9",
       "logo": false,
-      "links": [
-        {
-          "label": "Hotmart · Fechamento",
-          "url": "https://mggastal.github.io/sobe_ana/#hotmart"
-        }
-      ]
+      "links": []
     },
     {
       "repo": "sobe_coa",

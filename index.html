@@ -416,7 +416,7 @@ async function carregar(){
 function metr(c){
   const s = ST.clientes[c.repo] || {}, J = janelas();
   const m = {s, A: agg(s, J.a), B: agg(s, J.b), vendas: !!s.tem_vendas && plat === "todas"};
-  m.moeda = simb(m.A.mo); m.misto = new Set(Object.values(m.A.moedaP)).size > 1;
+  m.moeda = simb(m.A.mo); m.misto = new Set(Object.keys(m.A.moedaP).filter(p => m.A.por[p] > 0).map(p => m.A.moedaP[p])).size > 1;
   if (s.serie){
     const hoje = hojeBRT(), ini = addDias(hoje,-29), dias = s.serie.dias;
     const md = s.moedas || {}, conv = m.A.mo === "BRL";
@@ -488,7 +488,8 @@ function logoHTML(c){
   return `<div class="logo" style="--c:${esc(c.cor || '#64748b')}">${letra}</div>`;
 }
 function linksHTML(c){
-  return `<div class="c-links"><a class="btn pri sm" href="${PAGES}/${c.repo}/" target="_blank" rel="noopener">Abrir dash ↗</a>` +
+  const mapas = ((ST.clientes[c.repo] || {}).mapas || []).map(m => `<a class="btn sm" href="${esc(m.url)}" target="_blank" rel="noopener" title="${esc(m.nome)}${m.salvo_em ? " · salvo em " + new Date(m.salvo_em).toLocaleDateString("pt-BR") : ""}">🧠 ${esc(m.label)}</a>`).join("");
+  return `<div class="c-links"><a class="btn pri sm" href="${PAGES}/${c.repo}/" target="_blank" rel="noopener">Abrir dash ↗</a>${mapas}` +
     (c.links || []).map(l => `<a class="btn sm" href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label)}</a>`).join("") + `</div>`;
 }
 const metrica = (l, v, s) => `<div><div class="m-l">${l}</div><div class="m-v">${v}</div><div class="m-s">${s || "&nbsp;"}</div></div>`;
@@ -690,10 +691,11 @@ function renderAdmin(){
       <input data-f="responsavel" value="${esc(c.responsavel || "")}" placeholder="responsável" list="respList"></div></div>
     <div><select data-f="status" class="st-${c.status}">${["ativo","pausado","arquivado"].map(s => `<option ${s===c.status?"selected":""}>${s}</option>`).join("")}</select>
       <label style="display:flex;gap:6px;align-items:center;font-size:12px;margin-top:6px;color:var(--text2)"><input type="checkbox" data-f="logo" ${c.logo?"checked":""} style="width:auto"> logo.png</label></div>
-    <div><textarea data-f="links" placeholder="Um link por linha: Nome | https://…">${esc((c.links || []).map(l => l.label + " | " + l.url).join("\n"))}</textarea></div>
+    <div><textarea data-f="links" placeholder="Links extras, um por linha: Nome | https://…">${esc((c.links || []).map(l => l.label + " | " + l.url).join("\n"))}</textarea>
+      <textarea data-f="mapas" placeholder="Pastas do mapa mental, uma por linha: pasta | rótulo" style="margin-top:4px">${esc((c.mapas || []).map(m => typeof m === "string" ? m : m.pasta + (m.label ? " | " + m.label : "")).join("\n"))}</textarea></div>
     <div><input data-f="cor" type="color" value="${esc(c.cor || "#64748b")}" style="height:32px;padding:2px"></div>
   </div>`).join("");
-  $("#adm").innerHTML = `<div class="adm-row h"><div></div><div>Nome</div><div>Tipo · segmento · responsável</div><div>Status</div><div>Links extras</div><div>Cor</div></div>${linhas}`;
+  $("#adm").innerHTML = `<div class="adm-row h"><div></div><div>Nome</div><div>Tipo · segmento · responsável</div><div>Status</div><div>Links extras · mapa mental</div><div>Cor</div></div>${linhas}`;
   if (JSON.stringify(CAD) !== JSON.stringify(CAD_PUB)) admMsg("Há alterações não salvas: valem só neste navegador até você clicar em “Salvar para todos”.", "");
 }
 function admMsg(t, cls){ const el = $("#admMsg"); el.textContent = t; el.className = "adm-msg " + (cls || ""); }
@@ -703,6 +705,7 @@ $("#adm").addEventListener("change", e => {
   const c = CAD.clientes[+row.dataset.i], f = e.target.dataset.f; if (!f) return;
   if (f === "links") c.links = e.target.value.split("\n").map(l => l.split("|")).filter(p => p.length >= 2 && p[1].trim()).map(p => ({label: p[0].trim(), url: p.slice(1).join("|").trim()}));
   else if (f === "logo") c.logo = e.target.checked;
+  else if (f === "mapas") c.mapas = e.target.value.split("\n").map(l => l.split("|").map(x => x.trim())).filter(p => p[0]).map(p => p[1] ? {pasta: p[0], label: p[1]} : p[0]);
   else c[f] = e.target.value;
   guardarRascunho(); renderTudo();
 });

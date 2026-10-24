@@ -275,12 +275,37 @@ def cambio():
     return out
 
 
+MAPAS_INDEX = "https://raw.githubusercontent.com/mggastal/sobe_mapamental/main/mapas/_index.json"
+MAPAS_URL = "https://mggastal.github.io/sobe_mapamental/?s="
+
+
+def mapas_do_cliente(c, indice):
+    """Projeto salvo mais recente de cada pasta do cliente no mapa mental, com o link de compartilhamento."""
+    out = []
+    for item in c.get("mapas") or []:
+        pasta, label = (item, None) if isinstance(item, str) else (item.get("pasta"), item.get("label"))
+        projs = [(k, v) for k, v in indice.items() if k.split("/")[0] == pasta and v.get("share")]
+        if not projs:
+            continue
+        k, v = max(projs, key=lambda kv: kv[1].get("salvoEm") or "")
+        out.append({"label": label or "Mapa mental", "nome": v.get("nome"), "url": MAPAS_URL + v["share"],
+                    "salvo_em": v.get("salvoEm"), "moeda": v.get("moeda"),
+                    "verba": {p: r.get("verba") for p, r in (v.get("resumo") or {}).items() if r.get("verba")}})
+    return out
+
+
 def main():
     base = os.path.dirname(os.path.abspath(__file__))
     cad = json.load(open(os.path.join(base, "clientes.json"), encoding="utf-8"))
+    try:
+        indice = json.loads(baixar(MAPAS_INDEX)).get("projetos") or {}
+    except Exception as e:
+        print("mapa mental: índice indisponível:", e)
+        indice = {}
     res = {}
     for c in cad["clientes"]:
         r = res[c["repo"]] = coletar(c)
+        r["mapas"] = mapas_do_cliente(c, indice)
         print(f"{c['repo']:<22} {'ok ' if r['ok'] else 'ERRO'} ultimo={r.get('ultimo_dia', '-')} "
               f"plats={','.join(r.get('plataformas', []))} vendas={r.get('tem_vendas', False)} "
               f"wf={r['workflow'].get('conclusao')}", r.get("erro", ""))

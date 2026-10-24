@@ -166,7 +166,7 @@ th i,td i.dot{display:inline-block;width:8px;height:8px;border-radius:2px;margin
 .adm-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:14px}
 .adm-msg{font-size:12.5px;color:var(--muted);flex:1;min-width:200px}
 .adm-msg.ok{color:var(--ok)}.adm-msg.err{color:var(--crit)}
-.adm-row{display:grid;grid-template-columns:28px minmax(150px,1.3fr) minmax(130px,1fr) 150px minmax(160px,1.6fr) 64px;gap:10px;align-items:start;padding:10px 12px;border-bottom:1px solid var(--border)}
+.adm-row{display:grid;grid-template-columns:28px minmax(150px,1.3fr) minmax(200px,1.3fr) 150px minmax(160px,1.6fr) 64px;gap:10px;align-items:start;padding:10px 12px;border-bottom:1px solid var(--border)}
 .adm-row:last-child{border-bottom:0}
 .adm-row.h{font-size:11.5px;color:var(--muted);font-weight:600;background:var(--card2);border-radius:12px 12px 0 0}
 .adm-row input,.adm-row select,.adm-row textarea{width:100%;padding:6px 8px;border:1px solid var(--border2);border-radius:7px;background:var(--card);font-size:12.5px}
@@ -228,6 +228,7 @@ th i,td i.dot{display:inline-block;width:8px;height:8px;border-radius:2px;margin
     <div class="filters">
       <input class="search" id="busca" placeholder="Buscar cliente…">
       <div id="chips" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+      <select class="sel" id="resp"></select>
       <div class="f-r">Ordenar
         <select class="sel" id="ordem">
           <option value="manual">Ordem do cadastro</option>
@@ -283,6 +284,7 @@ th i,td i.dot{display:inline-block;width:8px;height:8px;border-radius:2px;margin
         <button class="btn sm" id="sair">Sair</button>
       </div>
       <div class="adm-tbl" id="adm"></div>
+      <datalist id="respList"><option>Matheus</option><option>Tais</option></datalist>
       <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
         <input class="search" id="novoRepo" placeholder="repo novo, ex: sobe_cliente">
         <select class="sel" id="novoFmt">
@@ -309,7 +311,7 @@ const PER_LBL = {"7d":"7 dias", "30d":"30 dias", "mes":"Mês atual", "mesant":"M
 
 let CAD = null, CAD_PUB = null;
 let ST = {clientes:{}};
-let filtroTipo = "Todos", periodo = "7d", plat = "todas";
+let filtroSeg = "Todos", filtroResp = "Todos", periodo = "7d", plat = "todas";
 let sortCol = "inv", sortDir = -1;
 let sessao = "";
 
@@ -479,17 +481,20 @@ function cardHTML(c){
   if (m.s.ok === false) corpo = `<div class="empty" style="padding:18px">Não consegui ler os dados deste dash.</div>`;
   const badges = [c.status === "pausado" && sa.cls !== "neu" ? `<span class="pill neu">Pausado</span>` : "", m.lct ? `<span class="pill neu">${esc(m.lct)}</span>` : ""].join("");
   return `<article class="card">
-    <div class="c-h">${logoHTML(c)}<div class="c-n"><b title="${esc(c.nome)}">${esc(c.nome)}</b><span>${esc(c.tipo || "")}</span></div></div>
+    <div class="c-h">${logoHTML(c)}<div class="c-n"><b title="${esc(c.nome)}">${esc(c.nome)}</b><span>${subtitulo(c)}</span></div></div>
     <div style="display:flex;gap:6px;flex-wrap:wrap"><span class="pill ${sa.cls}" title="${esc(sa.det || "")}">${sa.cls==="ok"?"●":sa.cls==="crit"?"✕":sa.cls==="warn"?"▲":"○"} ${esc(sa.txt)}</span>${badges}</div>
     ${corpo}
     ${linksHTML(c)}
   </article>`;
 }
 const visiveis = () => CAD.clientes.filter(c => c.status !== "arquivado");
+// segmento e responsável valem para números, cards, tabela e meses
+const filtrados = () => visiveis().filter(c => (filtroSeg === "Todos" || (c.segmento || "Outros") === filtroSeg) && (filtroResp === "Todos" || (c.responsavel || "—") === filtroResp));
+const subtitulo = c => [c.tipo, c.responsavel].filter(Boolean).map(esc).join(" · ");
 
 function totais(){
   const T = {A:{sp:0,cv:0,imp:0,clk:0,vd:0,fat:0,por:{}}, B:{sp:0,cv:0,imp:0,clk:0,vd:0,fat:0,por:{}}};
-  const linhas = visiveis().map(c => [c, metr(c)]);
+  const linhas = filtrados().map(c => [c, metr(c)]);
   linhas.forEach(([c,m]) => ["A","B"].forEach(k => { const x = m[k], t = T[k];
     ["sp","cv","imp","clk","vd","fat"].forEach(f => t[f] += x[f]); Object.entries(x.por).forEach(([p,v]) => t.por[p] = (t.por[p]||0) + v); }));
   return {T, linhas};
@@ -508,11 +513,8 @@ function renderKpis(){
   $("#platBar").innerHTML = `<div class="kpi-l" style="margin-bottom:9px">Investimento por plataforma · ${PER_LBL[periodo]}</div>${stackHTML(A.por, A.sp)}${legHTML(A.por, A.sp, "R$")}`;
 }
 function renderGrid(){
-  const tipos = ["Todos", ...new Set(visiveis().map(c => (c.tipo || "Outros").split(" · ")[0]))];
-  if (!tipos.includes(filtroTipo)) filtroTipo = "Todos";
-  $("#chips").innerHTML = tipos.map(t => `<button class="chip ${t===filtroTipo?"on":""}" data-t="${esc(t)}">${esc(t)}</button>`).join("");
   const q = $("#busca").value.trim().toLowerCase(), ord = $("#ordem").value;
-  let lst = visiveis().filter(c => (filtroTipo === "Todos" || (c.tipo || "Outros").split(" · ")[0] === filtroTipo) && (!q || (c.nome + " " + c.repo).toLowerCase().includes(q)));
+  let lst = filtrados().filter(c => !q || (c.nome + " " + c.repo).toLowerCase().includes(q));
   const M = new Map(lst.map(c => [c.repo, metr(c)]));
   if (ord === "invest") lst.sort((a,b) => M.get(b.repo).A.sp - M.get(a.repo).A.sp);
   if (ord === "alerta") lst.sort((a,b) => M.get(b.repo).saude.n - M.get(a.repo).saude.n);
@@ -522,9 +524,10 @@ function renderGrid(){
 
 /* ---------- tabela ---------- */
 function colunas(){
-  const ps = Object.keys(PLATS).filter(p => (plat === "todas" || p === plat) && visiveis().some(c => ((ST.clientes[c.repo]||{}).plataformas||[]).includes(p)));
+  const ps = Object.keys(PLATS).filter(p => (plat === "todas" || p === plat) && filtrados().some(c => ((ST.clientes[c.repo]||{}).plataformas||[]).includes(p)));
   const cols = [
     {k:"nome", t:"Cliente", v:r => r.c.nome, f:r => esc(r.c.nome), txt:true},
+    {k:"resp", t:"Responsável", v:r => r.c.responsavel || "", f:r => esc(r.c.responsavel || "—"), l:true, txt:true},
     {k:"saude", t:"Situação", v:r => r.m.saude.n, f:r => `<span class="pill ${r.m.saude.cls}">${esc(r.m.saude.txt)}</span>`, l:true},
     {k:"inv", t:"Investimento", v:r => r.A.sp, f:r => brl(r.A.sp, r.m.moeda), sum:"sp"},
     {k:"dinv", t:"Δ invest.", v:r => pct(r.A.sp, r.B.sp) ?? -1e9, f:r => delta(r.A.sp, r.B.sp)},
@@ -548,7 +551,7 @@ function colunas(){
   return cols;
 }
 function linhasTabela(){
-  return visiveis().map(c => { const m = metr(c); return {c, m, A:m.A, B:m.B}; });
+  return filtrados().map(c => { const m = metr(c); return {c, m, A:m.A, B:m.B}; });
 }
 function renderTabela(){
   const cols = colunas(), rows = linhasTabela(), col = cols.find(x => x.k === sortCol) || cols[2];
@@ -561,7 +564,7 @@ function renderTabela(){
 }
 $("#tabela").addEventListener("click", e => {
   const th = e.target.closest("th.sort"); if (!th) return;
-  if (sortCol === th.dataset.k) sortDir *= -1; else { sortCol = th.dataset.k; sortDir = ["nome"].includes(sortCol) ? 1 : -1; }
+  if (sortCol === th.dataset.k) sortDir *= -1; else { sortCol = th.dataset.k; sortDir = ["nome","resp"].includes(sortCol) ? 1 : -1; }
   renderTabela();
 });
 $("#csv").onclick = () => {
@@ -576,7 +579,7 @@ $("#csv").onclick = () => {
 
 /* ---------- por mês ---------- */
 function renderMeses(){
-  const lst = visiveis().filter(c => (ST.clientes[c.repo] || {}).meses_plat);
+  const lst = filtrados().filter(c => (ST.clientes[c.repo] || {}).meses_plat);
   const ymHoje = hojeBRT().slice(0,7), yms = Array.from({length:6}, (_,k) => addMes(ymHoje, k-5));
   if (!lst.length){ $("#meses").innerHTML = '<div class="empty">Sem dados mensais.</div>'; return; }
   const tot = yms.map(() => 0), porP = {};
@@ -598,8 +601,16 @@ function renderEx(){
   const ex = CAD.clientes.filter(c => c.status === "arquivado");
   $("#cntEx").textContent = ex.length ? ex.length : "";
   $("#exGrid").innerHTML = ex.length ? ex.map(c => `<article class="card">
-      <div class="c-h">${logoHTML(c)}<div class="c-n"><b>${esc(c.nome)}</b><span>${esc(c.tipo || "")}</span></div></div>
+      <div class="c-h">${logoHTML(c)}<div class="c-n"><b>${esc(c.nome)}</b><span>${[c.segmento, c.responsavel].filter(Boolean).map(esc).join(" · ")}</span></div></div>
       ${linksHTML(c)}</article>`).join("") : '<div class="empty">Nenhum cliente arquivado.</div>';
+}
+function renderFiltros(){
+  const segs = ["Todos", ...new Set(visiveis().map(c => c.segmento || "Outros"))];
+  if (!segs.includes(filtroSeg)) filtroSeg = "Todos";
+  $("#chips").innerHTML = segs.map(t => `<button class="chip ${t===filtroSeg?"on":""}" data-t="${esc(t)}">${esc(t)}</button>`).join("");
+  const resps = [...new Set(visiveis().map(c => c.responsavel || "—"))].sort();
+  if (filtroResp !== "Todos" && !resps.includes(filtroResp)) filtroResp = "Todos";
+  $("#resp").innerHTML = `<option value="Todos">Todos os responsáveis</option>` + resps.map(r => `<option ${r===filtroResp?"selected":""}>${esc(r)}</option>`).join("");
 }
 function renderBarra(){
   document.querySelectorAll("#segPer button").forEach(b => b.classList.toggle("on", b.dataset.v === periodo));
@@ -640,13 +651,15 @@ function renderAdmin(){
   const linhas = CAD.clientes.map((c,i) => `<div class="adm-row ${c.status === "arquivado" ? "arq" : ""}" data-i="${i}">
     <div class="ord"><button data-mv="-1" title="Subir">▲</button><button data-mv="1" title="Descer">▼</button></div>
     <div><input data-f="nome" value="${esc(c.nome)}"><div class="repo">${esc(c.repo)} · ${esc(c.formato)}${(c.somar||[]).length ? " + " + c.somar.map(s => esc(s.repo)).join(", ") : ""}</div></div>
-    <div><input data-f="tipo" value="${esc(c.tipo || "")}" placeholder="tipo (ex: Captação)"></div>
+    <div><input data-f="tipo" value="${esc(c.tipo || "")}" placeholder="tipo (ex: Captação)">
+      <div style="display:flex;gap:4px;margin-top:4px"><select data-f="segmento">${["Geral","Infoproduto"].map(s => `<option ${s===c.segmento?"selected":""}>${s}</option>`).join("")}</select>
+      <input data-f="responsavel" value="${esc(c.responsavel || "")}" placeholder="responsável" list="respList"></div></div>
     <div><select data-f="status" class="st-${c.status}">${["ativo","pausado","arquivado"].map(s => `<option ${s===c.status?"selected":""}>${s}</option>`).join("")}</select>
       <label style="display:flex;gap:6px;align-items:center;font-size:12px;margin-top:6px;color:var(--text2)"><input type="checkbox" data-f="logo" ${c.logo?"checked":""} style="width:auto"> logo.png</label></div>
     <div><textarea data-f="links" placeholder="Um link por linha: Nome | https://…">${esc((c.links || []).map(l => l.label + " | " + l.url).join("\n"))}</textarea></div>
     <div><input data-f="cor" type="color" value="${esc(c.cor || "#64748b")}" style="height:32px;padding:2px"></div>
   </div>`).join("");
-  $("#adm").innerHTML = `<div class="adm-row h"><div></div><div>Nome</div><div>Tipo</div><div>Status</div><div>Links extras</div><div>Cor</div></div>${linhas}`;
+  $("#adm").innerHTML = `<div class="adm-row h"><div></div><div>Nome</div><div>Tipo · segmento · responsável</div><div>Status</div><div>Links extras</div><div>Cor</div></div>${linhas}`;
   if (JSON.stringify(CAD) !== JSON.stringify(CAD_PUB)) admMsg("Há alterações não salvas: valem só neste navegador até você clicar em “Salvar para todos”.", "");
 }
 function admMsg(t, cls){ const el = $("#admMsg"); el.textContent = t; el.className = "adm-msg " + (cls || ""); }
@@ -669,7 +682,7 @@ $("#adm").addEventListener("click", e => {
 $("#addCli").onclick = () => {
   const repo = $("#novoRepo").value.trim(); if (!/^[\w.-]+$/.test(repo)) return admMsg("Informe o nome do repositório (ex: sobe_cliente).", "err");
   if (CAD.clientes.some(c => c.repo === repo)) return admMsg("Esse repo já está no cadastro.", "err");
-  CAD.clientes.push({repo, nome: repo.replace(/^sobe_/,"").replace(/_/g," ").replace(/\b\w/g, l => l.toUpperCase()), grupo:"", tipo:"Captação", status:"ativo", formato: $("#novoFmt").value, cor:"#64748b", logo:true, links:[]});
+  CAD.clientes.push({repo, nome: repo.replace(/^sobe_/,"").replace(/_/g," ").replace(/\b\w/g, l => l.toUpperCase()), segmento:"Geral", responsavel:"", tipo:"Captação", status:"ativo", formato: $("#novoFmt").value, cor:"#64748b", logo:true, links:[]});
   $("#novoRepo").value = ""; guardarRascunho(); renderTudo();
   admMsg("Cliente adicionado. Os números aparecem depois de salvar e a coleta rodar (~2 min).", "ok");
 };
@@ -708,7 +721,8 @@ $("#tabs").onclick = e => { const t = e.target.closest(".tab"); if (t) irPara(t.
 addEventListener("hashchange", () => irPara(location.hash.slice(1)));
 $("#segPer").onclick = e => { const b = e.target.closest("button"); if (b){ periodo = b.dataset.v; lsSet(LS_PER, periodo); renderTudo(); } };
 $("#segPlat").onclick = e => { const b = e.target.closest("button"); if (b){ plat = b.dataset.v; renderTudo(); } };
-$("#chips").onclick = e => { const b = e.target.closest(".chip"); if (b){ filtroTipo = b.dataset.t; renderGrid(); } };
+$("#chips").onclick = e => { const b = e.target.closest(".chip"); if (b){ filtroSeg = b.dataset.t; renderTudo(); } };
+$("#resp").onchange = e => { filtroResp = e.target.value; renderTudo(); };
 $("#busca").oninput = renderGrid; $("#ordem").onchange = renderGrid;
 $("#recarregar").onclick = () => carregar();
 function aplicarTema(t){ if (t) document.documentElement.dataset.theme = t; else delete document.documentElement.dataset.theme; }
@@ -718,7 +732,7 @@ $("#tema").onclick = () => {
   const t = escuro ? "light" : "dark"; aplicarTema(t); lsSet(LS_THEME, t);
 };
 
-function renderTudo(){ renderBarra(); renderKpis(); renderGrid(); renderTabela(); renderMeses(); renderTools(); renderEx(); renderAdmin(); }
+function renderTudo(){ renderFiltros(); renderBarra(); renderKpis(); renderGrid(); renderTabela(); renderMeses(); renderTools(); renderEx(); renderAdmin(); }
 
 irPara(location.hash.slice(1) || "geral");
 carregar().catch(e => { $("#coleta").textContent = "erro ao carregar"; $("#grid").innerHTML = `<div class="empty">Não consegui carregar os dados (${esc(e.message)}).</div>`; });

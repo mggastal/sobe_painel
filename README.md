@@ -12,9 +12,9 @@ Formatos aceitos em `clientes.json`: `template` (data.json dos dashs perpétuo/c
 
 1. GitHub → Settings → Developer settings → Fine-grained tokens → novo token, **só o repo sobe_painel**, permissões **Contents: Read and write** e **Actions: Read and write**.
 2. Cloudflare → Workers & Pages → Create → Worker → nome **`sobepainel`** → Deploy → Edit code → cole `worker/painel-worker.js` → Deploy.
-3. Worker → Settings → Variables and Secrets:
-   - `GITHUB_TOKEN` (secret): o token do passo 1
-   - `USUARIO_EQUIPE`: o mesmo do mapa mental
+3. Worker → Settings → Variables and Secrets (igual ao Worker do mapa mental, trocando só o REPO; BASE e BRANCH não são usados):
+   - `GITHUB_TOKEN` (secret): o token do passo 1 — ou o mesmo do mapa mental, se ele for um token clássico com escopo `repo` (aí já alcança o sobe_painel)
+   - `USUARIO_EQUIPE`: `sobe` (o mesmo do mapa mental)
    - `SENHA_EQUIPE` (secret): a mesma do mapa mental
    - `REPO`: `mggastal/sobe_painel`
    - `ORIGENS`: `https://mggastal.github.io`

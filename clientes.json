@@ -1,5 +1,5 @@
 {
-  "_ajuda": "Cadastro do Painel Sobé. status: ativo | pausado | arquivado. formato diz ao coletor como ler os dados do dash (template, embed, cidades, unibrasil). pagina = arquivo HTML lido no formato embed (padrão: index). somar = outros repos somados neste cliente.",
+  "_ajuda": "Cadastro do Painel Sobé. status: ativo | pausado | arquivado. segmento: Geral | Infoproduto. responsavel: quem atende. formato diz ao coletor como ler os dados do dash (template, embed, cidades, unibrasil). pagina = arquivo HTML lido no formato embed (padrão: index). somar = outros repos somados neste cliente.",
   "ferramentas": [
     {
       "nome": "Mapa Mental",
@@ -16,7 +16,8 @@
     {
       "repo": "sobe_unibrasil",
       "nome": "UniBrasil",
-      "grupo": "",
+      "segmento": "Geral",
+      "responsavel": "Matheus",
       "tipo": "Institucional",
       "status": "ativo",
       "formato": "unibrasil",
@@ -44,9 +45,125 @@
       ]
     },
     {
+      "repo": "sobe_adopt",
+      "nome": "Adopt",
+      "segmento": "Geral",
+      "responsavel": "Matheus",
+      "tipo": "Negócio local",
+      "status": "ativo",
+      "formato": "embed",
+      "cor": "#02C028",
+      "logo": true,
+      "links": [
+        {
+          "label": "Planejamento",
+          "url": "https://mggastal.github.io/sobe_adopt/planejamento.html"
+        }
+      ]
+    },
+    {
+      "repo": "sobe_quest",
+      "nome": "Quest",
+      "segmento": "Geral",
+      "responsavel": "Matheus",
+      "tipo": "Captação",
+      "status": "ativo",
+      "formato": "template",
+      "cor": "#334155",
+      "logo": true,
+      "links": []
+    },
+    {
+      "repo": "sobe_microkids",
+      "nome": "Microkids",
+      "segmento": "Geral",
+      "responsavel": "Matheus",
+      "tipo": "Captação",
+      "status": "ativo",
+      "formato": "template",
+      "cor": "#AD96DC",
+      "logo": true,
+      "links": [
+        {
+          "label": "Relatório de captações",
+          "url": "https://mggastal.github.io/sobe_microkids/captacoes.html"
+        },
+        {
+          "label": "Webinar",
+          "url": "https://mggastal.github.io/sobe_microkids/webinar.html"
+        }
+      ]
+    },
+    {
+      "repo": "sobe_gemte",
+      "nome": "Gemte",
+      "segmento": "Geral",
+      "responsavel": "Matheus",
+      "tipo": "Captação",
+      "status": "arquivado",
+      "formato": "embed",
+      "cor": "#215F50",
+      "logo": true,
+      "links": [
+        {
+          "label": "Mapa mental",
+          "url": "https://mggastal.github.io/sobe_gemte/mapamental.html"
+        }
+      ]
+    },
+    {
+      "repo": "sobe_drg",
+      "nome": "Doctor G",
+      "segmento": "Geral",
+      "responsavel": "Tais",
+      "tipo": "Captação",
+      "status": "ativo",
+      "formato": "template",
+      "cor": "#14b8a6",
+      "logo": true,
+      "links": []
+    },
+    {
+      "repo": "sobe_fernanda",
+      "nome": "Dra. Fernanda Cavalcante",
+      "segmento": "Geral",
+      "responsavel": "Tais",
+      "tipo": "Captação",
+      "status": "ativo",
+      "formato": "template",
+      "cor": "#9aa63a",
+      "logo": true,
+      "links": []
+    },
+    {
+      "repo": "sobe_violiver",
+      "nome": "VI Oliver",
+      "segmento": "Geral",
+      "responsavel": "Tais",
+      "tipo": "Captação",
+      "status": "ativo",
+      "formato": "template",
+      "cor": "#6659A5",
+      "logo": true,
+      "links": []
+    },
+    {
+      "repo": "sobe_pro_condomino",
+      "nome": "Pró Condomínio",
+      "segmento": "Geral",
+      "responsavel": "Tais",
+      "tipo": "Captação · 2 cidades",
+      "status": "ativo",
+      "formato": "cidades",
+      "cor": "#f59e0b",
+      "logo": true,
+      "links": []
+    },
+    {
       "repo": "sobe_dra_monica",
       "nome": "Dra Monica",
-      "grupo": "",
+      "segmento": "Infoproduto",
+      "responsavel": "Matheus",
       "tipo": "Perpétuo",
       "status": "ativo",
       "formato": "embed",
@@ -71,9 +188,10 @@
     {
       "repo": "sobe_rafa_rovani",
       "nome": "Rafa Rovani",
-      "grupo": "",
+      "segmento": "Infoproduto",
+      "responsavel": "Matheus",
       "tipo": "Lançamento pago",
-      "status": "ativo",
+      "status": "arquivado",
       "formato": "embed",
       "cor": "#C1994B",
       "logo": true,
@@ -85,129 +203,24 @@
       ]
     },
     {
-      "repo": "sobe_coa",
-      "nome": "Conteúdo Oceânico",
-      "grupo": "",
-      "tipo": "Lançamento pago",
-      "status": "ativo",
+      "repo": "sobe_little_motf01",
+      "nome": "Monster of The Future",
+      "segmento": "Infoproduto",
+      "responsavel": "Matheus",
+      "tipo": "Lançamento gratuito",
+      "status": "arquivado",
       "formato": "embed",
-      "cor": "#e11d48",
-      "logo": true,
+      "cor": "#6CC0BA",
+      "logo": false,
       "links": []
-    },
-    {
-      "repo": "sobe_adopt",
-      "nome": "Adopt",
-      "grupo": "",
-      "tipo": "Negócio local",
-      "status": "ativo",
-      "formato": "embed",
-      "cor": "#02C028",
-      "logo": true,
-      "links": [
-        {
-          "label": "Planejamento",
-          "url": "https://mggastal.github.io/sobe_adopt/planejamento.html"
-        }
-      ]
-    },
-    {
-      "repo": "sobe_microkids",
-      "nome": "Microkids",
-      "grupo": "",
-      "tipo": "Captação",
-      "status": "ativo",
-      "formato": "template",
-      "cor": "#AD96DC",
-      "logo": true,
-      "links": [
-        {
-          "label": "Relatório de captações",
-          "url": "https://mggastal.github.io/sobe_microkids/captacoes.html"
-        },
-        {
-          "label": "Webinar",
-          "url": "https://mggastal.github.io/sobe_microkids/webinar.html"
-        }
-      ]
-    },
-    {
-      "repo": "sobe_fernanda",
-      "nome": "Dra. Fernanda Cavalcante",
-      "grupo": "",
-      "tipo": "Captação",
-      "status": "ativo",
-      "formato": "template",
-      "cor": "#9aa63a",
-      "logo": true,
-      "links": []
-    },
-    {
-      "repo": "sobe_quest",
-      "nome": "Quest",
-      "grupo": "",
-      "tipo": "Captação",
-      "status": "ativo",
-      "formato": "template",
-      "cor": "#334155",
-      "logo": true,
-      "links": []
-    },
-    {
-      "repo": "sobe_drg",
-      "nome": "Doctor G",
-      "grupo": "",
-      "tipo": "Captação",
-      "status": "ativo",
-      "formato": "template",
-      "cor": "#14b8a6",
-      "logo": true,
-      "links": []
-    },
-    {
-      "repo": "sobe_violiver",
-      "nome": "VI Oliver",
-      "grupo": "",
-      "tipo": "Captação",
-      "status": "ativo",
-      "formato": "template",
-      "cor": "#6659A5",
-      "logo": true,
-      "links": []
-    },
-    {
-      "repo": "sobe_pro_condomino",
-      "nome": "Pró Condomínio",
-      "grupo": "",
-      "tipo": "Captação · 2 cidades",
-      "status": "ativo",
-      "formato": "cidades",
-      "cor": "#f59e0b",
-      "logo": true,
-      "links": []
-    },
-    {
-      "repo": "sobe_gemte",
-      "nome": "Gemte",
-      "grupo": "",
-      "tipo": "Captação",
-      "status": "ativo",
-      "formato": "embed",
-      "cor": "#215F50",
-      "logo": true,
-      "links": [
-        {
-          "label": "Mapa mental",
-          "url": "https://mggastal.github.io/sobe_gemte/mapamental.html"
-        }
-      ]
     },
     {
       "repo": "sobe_ana",
       "nome": "Ana Scalea",
-      "grupo": "",
+      "segmento": "Infoproduto",
+      "responsavel": "Tais",
       "tipo": "Vendas perpétuo",
-      "status": "ativo",
+      "status": "arquivado",
       "formato": "template",
       "cor": "#0ea5e9",
       "logo": false,
@@ -219,14 +232,15 @@
       ]
     },
     {
-      "repo": "sobe_little_motf01",
-      "nome": "Monster of The Future",
-      "grupo": "",
-      "tipo": "Lançamento gratuito",
+      "repo": "sobe_coa",
+      "nome": "Conteúdo Oceânico",
+      "segmento": "Infoproduto",
+      "responsavel": "Tais",
+      "tipo": "Lançamento pago",
       "status": "arquivado",
       "formato": "embed",
-      "cor": "#6CC0BA",
-      "logo": false,
+      "cor": "#e11d48",
+      "logo": true,
       "links": []
     }
   ]

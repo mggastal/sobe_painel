@@ -1,9 +1,11 @@
 """Coletor do Painel Sobé.
 
-Lê (somente leitura) o data.json publicado de cada dash em clientes.json e o
+Lê (somente leitura) os dados já publicados de cada dash em clientes.json e o
 status da última GitHub Action de cada repo, e grava status.json — um resumo
-pequeno e no mesmo formato para todos os clientes. Não altera nada nos repos
-dos clientes.
+pequeno e no mesmo formato para todos os clientes: série diária de
+investimento e conversões por plataforma (Meta, Google, LinkedIn, TikTok) e,
+quando o dash tem Hotmart, vendas e faturamento por dia. Não altera nada nos
+repos dos clientes.
 
 Uso:  python3 coletar.py            (GITHUB_TOKEN opcional, evita limite da API)
 """
@@ -14,13 +16,14 @@ import ssl
 import sys
 import urllib.request
 from collections import defaultdict
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 
 PAGES = "https://mggastal.github.io"
 DONO = "mggastal"
 DIAS_SERIE = 120          # dias diários guardados por cliente
 MESES = 12
 BRT = timezone(timedelta(hours=-3))
+VENDAS = "_vendas"        # pseudo-plataforma: [qtd, valor] por dia
 
 try:
     import certifi
@@ -40,15 +43,6 @@ def baixar(url, api=False):
         return r.read().decode("utf-8")
 
 
-def iso(d):
-    """'23/10/2026' ou '2026-10-23' -> '2026-10-23'."""
-    d = str(d)[:10]
-    if "/" in d:
-        dd, mm, aa = d.split("/")
-        return f"{aa}-{mm}-{dd}"
-    return d
-
-
 def num(v):
     try:
         return float(v or 0)
@@ -56,42 +50,81 @@ def num(v):
         return 0.0
 
 
-# ---------- leitores por formato: devolvem {plataforma: {dia: [spend, conv]}} ----------
+def iso(d, ref):
+    """'23/10/2026', '23/10/26', '23/10' ou '2026-10-23' -> '2026-10-23'.
+    Sem ano: o ano de ref, ou o anterior se a data cair depois de ref."""
+    d = str(d).strip()[:10]
+    if "-" in d:
+        return d
+    p = d.split("/")
+    dd, mm = int(p[0]), int(p[1])
+    if len(p) > 2 and p[2]:
+        aa = int(p[2]) + (2000 if len(p[2]) == 2 else 0)
+    else:
+        aa = ref.year - (1 if (mm, dd) > (ref.month, ref.day) else 0)
+    return f"{aa:04d}-{mm:02d}-{dd:02d}"
 
-def do_template(d, acc=None):
-    acc = acc if acc is not None else defaultdict(lambda: defaultdict(lambda: [0.0, 0.0]))
+
+def novo_acc():
+    # por dia: [investimento, conversões, impressões, cliques]
+    return defaultdict(lambda: defaultdict(lambda: [0.0, 0.0, 0.0, 0.0]))
+
+
+def somar_serie(acc, plat, dias, *cols, ref):
+    for i, dia in enumerate(dias or []):
+        s = acc[plat][iso(dia, ref)]
+        for k, col in enumerate(cols):
+            s[k] += num(col[i]) if col and i < len(col) else 0
+
+
+def somar_linha(acc, plat, dia, ref, *vals):
+    s = acc[plat][iso(dia, ref)]
+    for k, v in enumerate(vals):
+        s[k] += num(v)
+
+
+# ---------- leitores: preenchem acc[plataforma][dia] = [spend, conv] ----------
+
+def ler_template(d, acc, ref):
+    """Formato dos dashs Sobé (data.json ou consts dentro do HTML)."""
     md = d.get("META_DAILY") or {}
     m = md.get("all") or md.get("lct") or {}
-    for i, dia in enumerate(m.get("days") or []):
-        s = acc["meta"][iso(dia)]
-        s[0] += num((m.get("spend") or [0])[i] if i < len(m.get("spend") or []) else 0)
-        s[1] += num((m.get("leads") or [0])[i] if i < len(m.get("leads") or []) else 0)
-    if d.get("USAR_GOOGLE"):
-        g = d.get("GOOGLE_DAILY") or {}
-        for i, dia in enumerate(g.get("days") or []):
-            s = acc["google"][iso(dia)]
-            s[0] += num(g["spend"][i] if i < len(g.get("spend") or []) else 0)
-            s[1] += num(g["conversions"][i] if i < len(g.get("conversions") or []) else 0)
-    return acc
+    somar_serie(acc, "meta", m.get("days"), m.get("spend"), m.get("leads"), m.get("impressions"),
+                m.get("link_clicks") or m.get("clicks"), ref=ref)
+    g = d.get("GOOGLE_DAILY") or {}
+    if d.get("USAR_GOOGLE") is not False:
+        clk, imp = g.get("clicks"), g.get("impressions")
+        if not clk and g.get("cpc"):
+            # o template só guarda CTR e CPC do Google: cliques = gasto/CPC, impressões = cliques/CTR
+            clk = [num(sp) / num(c) if num(c) else 0 for sp, c in zip(g.get("spend") or [], g["cpc"])]
+            imp = [k / (num(t) / 100) if num(t) else 0 for k, t in zip(clk, g.get("ctr") or [])]
+        somar_serie(acc, "google", g.get("days"), g.get("spend"), g.get("conversions"), imp, clk, ref=ref)
+    li = d.get("LI_DAILY") or {}
+    somar_serie(acc, "linkedin", li.get("days"), li.get("spend"), li.get("leads"), li.get("impressions"),
+                li.get("clicks"), ref=ref)
+    if d.get("USAR_LINKEDIN"):
+        for r in d.get("LINKEDIN_RAW") or []:
+            somar_linha(acc, "linkedin", r["d"], ref, r.get("sp"), r.get("ld"), r.get("imp"), r.get("cl"))
+    tk = d.get("TIKTOK_DAILY") or d.get("TT_DAILY") or {}
+    somar_serie(acc, "tiktok", tk.get("days"), tk.get("spend"), tk.get("conversions") or tk.get("leads"),
+                tk.get("impressions"), tk.get("clicks"), ref=ref)
+    # vendas reais (Hotmart/Eduzz) quando o dash tem: [qtd, valor]
+    hd = d.get("HOT_DAILY") or {}
+    somar_serie(acc, VENDAS, hd.get("days"), hd.get("qtd"), hd.get("valor"), ref=ref)
+    hm = d.get("HOTMART")
+    if isinstance(hm, dict) and isinstance(hm.get("daily"), dict):      # gerador_perpetuo
+        somar_serie(acc, VENDAS, hm["daily"].get("days"), hm["daily"].get("vendas"), hm["daily"].get("receita"), ref=ref)
+    if isinstance(hm, dict) and isinstance(hm.get("diario"), dict):
+        dias = hm["diario"].get("dias") or []
+        for prod in (hm["diario"].get("prod") or {}).values():
+            somar_serie(acc, VENDAS, dias, prod.get("vendas"), prod.get("liq"), ref=ref)
 
 
-def do_cidades(d):
-    acc = None
-    for chave in (d.get("_META") or {}).get("cidades", {}):
-        if chave in d:
-            acc = do_template(d[chave], acc)
-    return acc
-
-
-def do_unibrasil(d):
-    acc = defaultdict(lambda: defaultdict(lambda: [0.0, 0.0]))
+def ler_unibrasil(d, acc, ref):
     for r in d.get("meta") or []:
-        s = acc["meta"][iso(r["d"])]
-        s[0] += num(r.get("sp")); s[1] += num(r.get("ld"))
+        somar_linha(acc, "meta", r["d"], ref, r.get("sp"), r.get("ld"), r.get("im"), r.get("ck"))
     for r in d.get("google") or []:
-        s = acc["google"][iso(r["d"])]
-        s[0] += num(r.get("sp")); s[1] += num(r.get("cv"))
-    return acc
+        somar_linha(acc, "google", r["d"], ref, r.get("sp"), r.get("cv"), r.get("im"), r.get("ck"))
 
 
 def extrair_const(html, nome):
@@ -104,39 +137,73 @@ def extrair_const(html, nome):
         return None
 
 
-def do_embed(html):
-    d = {k: extrair_const(html, k) for k in ("META_DAILY", "GOOGLE_DAILY", "USAR_GOOGLE")}
-    return do_template(d), extrair_const(html, "DATA_GERACAO")
+CONSTS = ("META_DAILY", "GOOGLE_DAILY", "USAR_GOOGLE", "LI_DAILY", "USAR_LINKEDIN", "LINKEDIN_RAW",
+          "TIKTOK_DAILY", "TT_DAILY", "HOT_DAILY", "HOTMART", "DATA_GERACAO", "MOEDA_SIMBOLO", "LANCAMENTO_COD")
+
+
+def ref_de(gerado):
+    try:
+        return date.fromisoformat(iso(gerado, datetime.now(BRT).date()))
+    except Exception:
+        return datetime.now(BRT).date()
+
+
+def ler_fonte(repo, fmt, pagina, acc):
+    """Lê um repo e soma em acc. Devolve info (gerado, moeda, lançamento)."""
+    info = {}
+    if fmt == "embed":
+        html = baixar(f"{PAGES}/{repo}/{pagina or ''}")
+        d = {k: extrair_const(html, k) for k in CONSTS}
+        info = {"gerado": d.get("DATA_GERACAO"), "moeda": d.get("MOEDA_SIMBOLO"), "lancamento": d.get("LANCAMENTO_COD")}
+        ler_template(d, acc, ref_de(info["gerado"]))
+        return info
+    d = json.loads(baixar(f"{PAGES}/{repo}/data.json"))
+    if fmt == "unibrasil":
+        info = {"gerado": d.get("gerado_em")}
+        ler_unibrasil(d, acc, ref_de(info["gerado"]))
+    elif fmt == "cidades":
+        cid = d.get((d.get("_META") or {}).get("cidade_padrao")) or {}
+        info = {"gerado": cid.get("DATA_GERACAO"), "moeda": cid.get("MOEDA_SIMBOLO")}
+        for chave in (d.get("_META") or {}).get("cidades", {}):
+            if chave in d:
+                ler_template(d[chave], acc, ref_de(info["gerado"]))
+    elif fmt == "resumo":
+        # só o acumulado do lançamento (sem série diária)
+        info = {"gerado": d.get("atualizado"), "lancamento": d.get("lancamento"), "kpis": d.get("kpis")}
+    else:
+        info = {"gerado": d.get("DATA_GERACAO"), "moeda": d.get("MOEDA_SIMBOLO"), "lancamento": d.get("LANCAMENTO_COD")}
+        ler_template(d, acc, ref_de(info["gerado"]))
+    return info
 
 
 # ---------- montagem ----------
 
 def resumir(acc):
-    """Série diária (meta+google somados e por plataforma) e meses."""
-    if not acc:
-        return None
-    dias = sorted({dia for p in acc.values() for dia in p})
+    plats = sorted(p for p in acc if p != VENDAS and any(v[0] for v in acc[p].values()))
+    dias = sorted({dia for p in plats + ([VENDAS] if VENDAS in acc else []) for dia in acc[p]})
     if not dias:
-        return None
-    ultimo = dias[-1]
+        return {}
+    ult_inv = max((dia for p in plats for dia, v in acc[p].items() if v[0] > 0), default=None)
     # a janela termina hoje (BRT) para todos: conta parada aparece com zeros
-    fim = max(datetime.fromisoformat(ultimo), datetime.now(BRT).replace(tzinfo=None))
-    janela = [(fim - timedelta(days=i)).date().isoformat() for i in range(DIAS_SERIE - 1, -1, -1)]
-    plats = sorted(acc)
+    fim = max(date.fromisoformat(dias[-1]), datetime.now(BRT).date())
+    janela = [(fim - timedelta(days=i)).isoformat() for i in range(DIAS_SERIE - 1, -1, -1)]
     serie = {"dias": janela}
-    for p in plats:
-        serie[p] = [[round(acc[p][dia][0], 2), round(acc[p][dia][1], 1)] if dia in acc[p] else [0, 0] for dia in janela]
+    chaves = plats + ([VENDAS] if VENDAS in acc else [])
+    for p in chaves:
+        n = 2 if p == VENDAS else 4
+        serie[p] = [[round(v, 2) for v in acc[p][dia][:n]] if dia in acc[p] else [0] * n for dia in janela]
     meses = defaultdict(lambda: [0.0, 0.0])
     por_plat = defaultdict(lambda: defaultdict(float))
     for p in plats:
-        for dia, (sp, cv) in acc[p].items():
+        for dia, (sp, cv, *_) in acc[p].items():
             meses[dia[:7]][0] += sp
             meses[dia[:7]][1] += cv
             por_plat[p][dia[:7]] += sp
     ult_meses = sorted(meses)[-MESES:]
     return {
-        "ultimo_dia": ultimo,
+        "ultimo_dia": ult_inv,
         "plataformas": plats,
+        "tem_vendas": VENDAS in acc and any(v[0] for v in acc[VENDAS].values()),
         "serie": serie,
         "meses": [[m, round(meses[m][0], 2), round(meses[m][1], 1)] for m in ult_meses],
         "meses_plat": {p: {m: round(por_plat[p][m], 2) for m in ult_meses if por_plat[p][m]} for p in plats},
@@ -151,52 +218,32 @@ def workflow(repo):
     for r in runs.get("workflow_runs") or []:
         if r.get("event") == "dynamic":      # deploy do Pages, não é o gerador
             continue
-        return {
-            "nome": r.get("name"),
-            "status": r.get("status"),
-            "conclusao": r.get("conclusion"),
-            "quando": r.get("updated_at"),
-            "url": r.get("html_url"),
-        }
+        return {"conclusao": r.get("conclusion"), "status": r.get("status"), "quando": r.get("updated_at")}
     return None
 
 
 def coletar(c):
-    repo, fmt = c["repo"], c.get("formato", "template")
-    out = {"formato": fmt}
-    try:
-        if fmt == "embed":
-            html = baixar(f"{PAGES}/{repo}/")
-            acc, gerado = do_embed(html)
-            out.update(resumir(acc) or {})
-            out["gerado"] = gerado
-        else:
-            d = json.loads(baixar(f"{PAGES}/{repo}/data.json"))
-            if fmt == "resumo":
-                out["lancamento"] = {
-                    "cod": d.get("lancamento") or "",
-                    "kpis": d.get("kpis") or {},
-                }
-                out["gerado"] = d.get("atualizado")
-            elif fmt == "unibrasil":
-                out.update(resumir(do_unibrasil(d)) or {})
-                out["gerado"] = d.get("gerado_em")
-            elif fmt == "cidades":
-                out.update(resumir(do_cidades(d)) or {})
-                cid = d.get((d.get("_META") or {}).get("cidade_padrao")) or {}
-                out["gerado"] = cid.get("DATA_GERACAO")
-                out["moeda"] = cid.get("MOEDA_SIMBOLO")
-            else:
-                out.update(resumir(do_template(d)) or {})
-                out["gerado"] = d.get("DATA_GERACAO")
-                out["moeda"] = d.get("MOEDA_SIMBOLO")
-                if d.get("LANCAMENTO_COD"):
-                    out["lancamento"] = {"cod": d["LANCAMENTO_COD"], "kpis": {}}
-        out["ok"] = True
-    except Exception as e:
-        out["ok"] = False
-        out["erro"] = f"{type(e).__name__}: {str(e)[:160]}"
-    out["workflow"] = workflow(repo)
+    fontes = [(c["repo"], c.get("formato", "template"), c.get("pagina"))]
+    fontes += [(s["repo"], s.get("formato", c.get("formato")), s.get("pagina")) for s in c.get("somar") or []]
+    acc, out, erros, wfs = novo_acc(), {"formato": c.get("formato")}, [], []
+    for repo, fmt, pagina in fontes:
+        try:
+            info = ler_fonte(repo, fmt, pagina, acc)
+            for k, v in info.items():
+                if v and k not in out:
+                    out[k] = v
+        except Exception as e:
+            erros.append(f"{repo}: {type(e).__name__}: {str(e)[:120]}")
+        wfs.append(workflow(repo) or {})
+    out.update(resumir(acc))
+    out["ok"] = not erros
+    if erros:
+        out["erro"] = " | ".join(erros)
+    # saúde: a pior execução entre os repos somados
+    falhas = [w for w in wfs if w.get("conclusao") == "failure"]
+    datas = [w["quando"] for w in wfs if w.get("quando")]
+    out["workflow"] = {"conclusao": "failure" if falhas else (wfs[0].get("conclusao") if wfs else None),
+                       "quando": min(datas) if datas else None}
     return out
 
 
@@ -205,10 +252,10 @@ def main():
     cad = json.load(open(os.path.join(base, "clientes.json"), encoding="utf-8"))
     res = {}
     for c in cad["clientes"]:
-        res[c["repo"]] = coletar(c)
-        r = res[c["repo"]]
+        r = res[c["repo"]] = coletar(c)
         print(f"{c['repo']:<22} {'ok ' if r['ok'] else 'ERRO'} ultimo={r.get('ultimo_dia', '-')} "
-              f"wf={(r.get('workflow') or {}).get('conclusao')}", r.get("erro", ""))
+              f"plats={','.join(r.get('plataformas', []))} vendas={r.get('tem_vendas', False)} "
+              f"wf={r['workflow'].get('conclusao')}", r.get("erro", ""))
     status = {"gerado_em": datetime.now(BRT).isoformat(timespec="seconds"), "clientes": res}
     with open(os.path.join(base, "status.json"), "w", encoding="utf-8") as f:
         json.dump(status, f, ensure_ascii=False, separators=(",", ":"))

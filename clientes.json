@@ -1,31 +1,233 @@
 {
-  "_ajuda": "Cadastro do Painel Sobé. status: ativo | pausado | arquivado. formato diz ao coletor como ler os dados do dash (template, embed, cidades, unibrasil, resumo). Edite pela aba Admin do painel ou direto aqui.",
+  "_ajuda": "Cadastro do Painel Sobé. status: ativo | pausado | arquivado. formato diz ao coletor como ler os dados do dash (template, embed, cidades, unibrasil). pagina = arquivo HTML lido no formato embed (padrão: index). somar = outros repos somados neste cliente.",
   "ferramentas": [
-    {"nome": "Mapa Mental", "descricao": "Estruturas de campanha Google, Meta, LinkedIn e TikTok", "url": "https://mggastal.github.io/sobe_mapamental/"},
-    {"nome": "Checklist de Performance", "descricao": "Rotina de revisão das contas", "url": "https://mggastal.github.io/sobe_checklist/"}
+    {
+      "nome": "Mapa Mental",
+      "descricao": "Estruturas de campanha Google, Meta, LinkedIn e TikTok",
+      "url": "https://mggastal.github.io/sobe_mapamental/"
+    },
+    {
+      "nome": "Checklist de Performance",
+      "descricao": "Rotina de revisão das contas",
+      "url": "https://mggastal.github.io/sobe_checklist/"
+    }
   ],
   "clientes": [
-    {"repo": "sobe_unibrasil", "nome": "UniBrasil · Graduação", "grupo": "UniBrasil", "tipo": "Institucional", "status": "ativo", "formato": "unibrasil", "cor": "#1d4ed8", "logo": true,
-     "links": [{"label": "Planejamento 2027/1", "url": "https://mggastal.github.io/sobe_unibrasil/planejamento_2027-1.html"}, {"label": "Resumo 2024", "url": "https://mggastal.github.io/sobe_unibrasil/resumo_2024.html"}]},
-    {"repo": "sobe_unibrasil_ppgd", "nome": "UniBrasil · Mestrado & Doutorado", "grupo": "UniBrasil", "tipo": "Institucional", "status": "ativo", "formato": "unibrasil", "cor": "#1e3a8a", "logo": true, "links": []},
-    {"repo": "sobe_dra_monica", "nome": "Dra Monica", "grupo": "", "tipo": "Lançamento + Perpétuo", "status": "ativo", "formato": "resumo", "cor": "#0ea5e9", "logo": false,
-     "links": [{"label": "Perpétuo POPList", "url": "https://mggastal.github.io/sobe_dra_monica/perpetuo.html"}, {"label": "RDC04", "url": "https://mggastal.github.io/sobe_dra_monica/RDC04.html"}, {"label": "Geral", "url": "https://mggastal.github.io/sobe_dra_monica/geral.html"}]},
-    {"repo": "sobe_rafa_rovani", "nome": "Rafa Rovani", "grupo": "", "tipo": "Lançamento pago", "status": "ativo", "formato": "resumo", "cor": "#C1994B", "logo": true,
-     "links": [{"label": "A Quebra 02", "url": "https://mggastal.github.io/sobe_rafa_rovani/aquebra02.html"}]},
-    {"repo": "sobe_coa", "nome": "Conteúdo Oceânico", "grupo": "", "tipo": "Lançamento pago", "status": "ativo", "formato": "resumo", "cor": "#e11d48", "logo": true, "links": []},
-    {"repo": "sobe_adopt", "nome": "Adopt", "grupo": "", "tipo": "Lançamento gratuito", "status": "ativo", "formato": "resumo", "cor": "#02C028", "logo": true,
-     "links": [{"label": "Planejamento", "url": "https://mggastal.github.io/sobe_adopt/planejamento.html"}]},
-    {"repo": "sobe_microkids", "nome": "Microkids", "grupo": "", "tipo": "Captação", "status": "ativo", "formato": "template", "cor": "#AD96DC", "logo": true,
-     "links": [{"label": "Relatório de captações", "url": "https://mggastal.github.io/sobe_microkids/captacoes.html"}, {"label": "Webinar", "url": "https://mggastal.github.io/sobe_microkids/webinar.html"}]},
-    {"repo": "sobe_fernanda", "nome": "Dra. Fernanda Cavalcante", "grupo": "", "tipo": "Captação", "status": "ativo", "formato": "template", "cor": "#9aa63a", "logo": true, "links": []},
-    {"repo": "sobe_quest", "nome": "Quest", "grupo": "", "tipo": "Captação", "status": "ativo", "formato": "template", "cor": "#334155", "logo": true, "links": []},
-    {"repo": "sobe_drg", "nome": "Doctor G", "grupo": "", "tipo": "Captação", "status": "ativo", "formato": "template", "cor": "#14b8a6", "logo": true, "links": []},
-    {"repo": "sobe_violiver", "nome": "VI Oliver", "grupo": "", "tipo": "Captação", "status": "ativo", "formato": "template", "cor": "#6659A5", "logo": true, "links": []},
-    {"repo": "sobe_pro_condomino", "nome": "Pró Condomínio", "grupo": "", "tipo": "Captação · 2 cidades", "status": "ativo", "formato": "cidades", "cor": "#f59e0b", "logo": true, "links": []},
-    {"repo": "sobe_gemte", "nome": "Gemte", "grupo": "", "tipo": "Captação", "status": "ativo", "formato": "embed", "cor": "#215F50", "logo": true,
-     "links": [{"label": "Mapa mental", "url": "https://mggastal.github.io/sobe_gemte/mapamental.html"}]},
-    {"repo": "sobe_ana", "nome": "Ana Scalea", "grupo": "", "tipo": "Vendas perpétuo", "status": "ativo", "formato": "template", "cor": "#0ea5e9", "logo": false,
-     "links": [{"label": "Hotmart · Fechamento", "url": "https://mggastal.github.io/sobe_ana/#hotmart"}]},
-    {"repo": "sobe_little_motf01", "nome": "Monster of The Future", "grupo": "", "tipo": "Lançamento gratuito", "status": "arquivado", "formato": "resumo", "cor": "#6CC0BA", "logo": false, "links": []}
+    {
+      "repo": "sobe_unibrasil",
+      "nome": "UniBrasil",
+      "grupo": "",
+      "tipo": "Institucional",
+      "status": "ativo",
+      "formato": "unibrasil",
+      "cor": "#1d4ed8",
+      "logo": true,
+      "links": [
+        {
+          "label": "Mestrado & Doutorado",
+          "url": "https://mggastal.github.io/sobe_unibrasil_ppgd/"
+        },
+        {
+          "label": "Planejamento 2027/1",
+          "url": "https://mggastal.github.io/sobe_unibrasil/planejamento_2027-1.html"
+        },
+        {
+          "label": "Resumo 2024",
+          "url": "https://mggastal.github.io/sobe_unibrasil/resumo_2024.html"
+        }
+      ],
+      "somar": [
+        {
+          "repo": "sobe_unibrasil_ppgd",
+          "formato": "unibrasil"
+        }
+      ]
+    },
+    {
+      "repo": "sobe_dra_monica",
+      "nome": "Dra Monica",
+      "grupo": "",
+      "tipo": "Perpétuo",
+      "status": "ativo",
+      "formato": "embed",
+      "cor": "#0ea5e9",
+      "logo": false,
+      "links": [
+        {
+          "label": "Perpétuo POPList",
+          "url": "https://mggastal.github.io/sobe_dra_monica/perpetuo.html"
+        },
+        {
+          "label": "RDC04 (encerrado)",
+          "url": "https://mggastal.github.io/sobe_dra_monica/RDC04.html"
+        },
+        {
+          "label": "Geral",
+          "url": "https://mggastal.github.io/sobe_dra_monica/geral.html"
+        }
+      ],
+      "pagina": "perpetuo.html"
+    },
+    {
+      "repo": "sobe_rafa_rovani",
+      "nome": "Rafa Rovani",
+      "grupo": "",
+      "tipo": "Lançamento pago",
+      "status": "ativo",
+      "formato": "embed",
+      "cor": "#C1994B",
+      "logo": true,
+      "links": [
+        {
+          "label": "A Quebra 02",
+          "url": "https://mggastal.github.io/sobe_rafa_rovani/aquebra02.html"
+        }
+      ]
+    },
+    {
+      "repo": "sobe_coa",
+      "nome": "Conteúdo Oceânico",
+      "grupo": "",
+      "tipo": "Lançamento pago",
+      "status": "ativo",
+      "formato": "embed",
+      "cor": "#e11d48",
+      "logo": true,
+      "links": []
+    },
+    {
+      "repo": "sobe_adopt",
+      "nome": "Adopt",
+      "grupo": "",
+      "tipo": "Negócio local",
+      "status": "ativo",
+      "formato": "embed",
+      "cor": "#02C028",
+      "logo": true,
+      "links": [
+        {
+          "label": "Planejamento",
+          "url": "https://mggastal.github.io/sobe_adopt/planejamento.html"
+        }
+      ]
+    },
+    {
+      "repo": "sobe_microkids",
+      "nome": "Microkids",
+      "grupo": "",
+      "tipo": "Captação",
+      "status": "ativo",
+      "formato": "template",
+      "cor": "#AD96DC",
+      "logo": true,
+      "links": [
+        {
+          "label": "Relatório de captações",
+          "url": "https://mggastal.github.io/sobe_microkids/captacoes.html"
+        },
+        {
+          "label": "Webinar",
+          "url": "https://mggastal.github.io/sobe_microkids/webinar.html"
+        }
+      ]
+    },
+    {
+      "repo": "sobe_fernanda",
+      "nome": "Dra. Fernanda Cavalcante",
+      "grupo": "",
+      "tipo": "Captação",
+      "status": "ativo",
+      "formato": "template",
+      "cor": "#9aa63a",
+      "logo": true,
+      "links": []
+    },
+    {
+      "repo": "sobe_quest",
+      "nome": "Quest",
+      "grupo": "",
+      "tipo": "Captação",
+      "status": "ativo",
+      "formato": "template",
+      "cor": "#334155",
+      "logo": true,
+      "links": []
+    },
+    {
+      "repo": "sobe_drg",
+      "nome": "Doctor G",
+      "grupo": "",
+      "tipo": "Captação",
+      "status": "ativo",
+      "formato": "template",
+      "cor": "#14b8a6",
+      "logo": true,
+      "links": []
+    },
+    {
+      "repo": "sobe_violiver",
+      "nome": "VI Oliver",
+      "grupo": "",
+      "tipo": "Captação",
+      "status": "ativo",
+      "formato": "template",
+      "cor": "#6659A5",
+      "logo": true,
+      "links": []
+    },
+    {
+      "repo": "sobe_pro_condomino",
+      "nome": "Pró Condomínio",
+      "grupo": "",
+      "tipo": "Captação · 2 cidades",
+      "status": "ativo",
+      "formato": "cidades",
+      "cor": "#f59e0b",
+      "logo": true,
+      "links": []
+    },
+    {
+      "repo": "sobe_gemte",
+      "nome": "Gemte",
+      "grupo": "",
+      "tipo": "Captação",
+      "status": "ativo",
+      "formato": "embed",
+      "cor": "#215F50",
+      "logo": true,
+      "links": [
+        {
+          "label": "Mapa mental",
+          "url": "https://mggastal.github.io/sobe_gemte/mapamental.html"
+        }
+      ]
+    },
+    {
+      "repo": "sobe_ana",
+      "nome": "Ana Scalea",
+      "grupo": "",
+      "tipo": "Vendas perpétuo",
+      "status": "ativo",
+      "formato": "template",
+      "cor": "#0ea5e9",
+      "logo": false,
+      "links": [
+        {
+          "label": "Hotmart · Fechamento",
+          "url": "https://mggastal.github.io/sobe_ana/#hotmart"
+        }
+      ]
+    },
+    {
+      "repo": "sobe_little_motf01",
+      "nome": "Monster of The Future",
+      "grupo": "",
+      "tipo": "Lançamento gratuito",
+      "status": "arquivado",
+      "formato": "embed",
+      "cor": "#6CC0BA",
+      "logo": false,
+      "links": []
+    }
   ]
 }

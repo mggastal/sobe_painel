@@ -11,7 +11,7 @@
   color-scheme:light;
   --bg:#f4f5f7;--card:#ffffff;--card2:#f8f9fb;--border:#e4e6eb;--border2:#d3d6dd;
   --text:#111318;--text2:#4b5160;--muted:#80869a;
-  --meta:#2a78d6;--google:#eb6834;--spark:#5b6475;
+  --meta:#2a78d6;--google:#eb6834;--linkedin:#1baf7a;--tiktok:#eda100;--spark:#5b6475;
   --ok:#15803d;--ok-bg:#e8f6ed;--warn:#b45309;--warn-bg:#fdf3e2;--crit:#b91c1c;--crit-bg:#fdecec;
   --up:#15803d;--down:#b91c1c;
   --head:#0f1420;--head-text:#ffffff;
@@ -22,7 +22,7 @@
     color-scheme:dark;
     --bg:#0e1015;--card:#171a21;--card2:#1d212a;--border:#272b35;--border2:#343946;
     --text:#eef0f4;--text2:#b4b9c6;--muted:#8a90a0;
-    --meta:#3987e5;--google:#d95926;--spark:#9aa3b5;
+    --meta:#3987e5;--google:#d95926;--linkedin:#199e70;--tiktok:#c98500;--spark:#9aa3b5;
     --ok:#4ade80;--ok-bg:#14291c;--warn:#fbbf24;--warn-bg:#2d2412;--crit:#f87171;--crit-bg:#2f1616;
     --up:#4ade80;--down:#f87171;
     --head:#090b10;--shadow:none;
@@ -32,7 +32,7 @@
   color-scheme:dark;
   --bg:#0e1015;--card:#171a21;--card2:#1d212a;--border:#272b35;--border2:#343946;
   --text:#eef0f4;--text2:#b4b9c6;--muted:#8a90a0;
-  --meta:#3987e5;--google:#d95926;--spark:#9aa3b5;
+  --meta:#3987e5;--google:#d95926;--linkedin:#199e70;--tiktok:#c98500;--spark:#9aa3b5;
   --ok:#4ade80;--ok-bg:#14291c;--warn:#fbbf24;--warn-bg:#2d2412;--crit:#f87171;--crit-bg:#2f1616;
   --up:#4ade80;--down:#f87171;
   --head:#090b10;--shadow:none;
@@ -58,23 +58,41 @@ button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit
 .tab.on{color:#fff;border-bottom-color:#fff}
 .tab .cnt{font-size:11px;opacity:.6;margin-left:4px}
 
-.wrap{max-width:1320px;margin:0 auto;padding:22px 24px 40px}
+.wrap{max-width:1320px;margin:0 auto;padding:18px 24px 40px}
 .page{display:none}.page.on{display:block}
 h2{font-size:18px;font-weight:700;letter-spacing:-.2px}
 .sub{color:var(--muted);font-size:12.5px;margin-top:2px}
 .sec-h{display:flex;align-items:flex-end;gap:12px;margin:26px 0 12px;flex-wrap:wrap}
 .sec-h:first-child{margin-top:0}
 
+/* barra de período */
+.pbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.seg{display:inline-flex;background:var(--card);border:1px solid var(--border2);border-radius:10px;padding:3px;gap:2px}
+.seg button{border:0;background:none;padding:6px 12px;border-radius:7px;font-size:12.5px;font-weight:600;color:var(--text2);cursor:pointer;white-space:nowrap}
+.seg button.on{background:var(--text);color:var(--card)}
+.seg button i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:5px;vertical-align:0}
+.pinfo{font-size:12px;color:var(--muted)}
+
 /* KPIs */
 .kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
-.kpi{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;box-shadow:var(--shadow)}
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;box-shadow:var(--shadow);min-width:0}
 .kpi-l{font-size:11.5px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px}
-.kpi-v{font-size:24px;font-weight:700;margin-top:6px;font-variant-numeric:tabular-nums;letter-spacing:-.4px}
+.kpi-v{font-size:24px;font-weight:700;margin-top:6px;font-variant-numeric:tabular-nums;letter-spacing:-.4px;white-space:nowrap}
 .kpi-s{font-size:12px;color:var(--text2);margin-top:3px}
 .d-up{color:var(--up);font-weight:600}.d-down{color:var(--down);font-weight:600}.d-0{color:var(--muted)}
 
+/* barra por plataforma */
+.plat{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;box-shadow:var(--shadow);margin-top:12px}
+.stack{display:flex;gap:2px;height:12px;border-radius:4px;overflow:hidden;background:var(--card2)}
+.stack span{display:block;height:100%;min-width:2px}
+.stack.sm{height:7px;border-radius:3px}
+.leg{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:12.5px;color:var(--text2);margin-top:9px}
+.leg.sm{font-size:11.5px;gap:3px 12px;margin-top:6px}
+.leg i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px;vertical-align:0}
+.leg b{color:var(--text);font-weight:700;font-variant-numeric:tabular-nums}
+
 /* filtros */
-.filters{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:22px 0 14px}
+.filters{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:20px 0 14px}
 .search{flex:0 1 240px;min-width:160px;padding:8px 12px;border:1px solid var(--border2);border-radius:9px;background:var(--card)}
 .chip{padding:6px 11px;border-radius:999px;border:1px solid var(--border2);background:var(--card);cursor:pointer;font-size:12.5px;font-weight:600;color:var(--text2)}
 .chip.on{background:var(--text);color:var(--card);border-color:var(--text)}
@@ -82,7 +100,7 @@ h2{font-size:18px;font-weight:700;letter-spacing:-.2px}
 .f-r{margin-left:auto;display:flex;gap:8px;align-items:center;font-size:12px;color:var(--muted)}
 
 /* cards de cliente */
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(300px,100%),1fr));gap:14px}
 .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:12px;box-shadow:var(--shadow);min-width:0}
 .c-h{display:flex;gap:11px;align-items:center;min-width:0}
 .logo{width:40px;height:40px;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;overflow:hidden;background:var(--c,#64748b)}
@@ -97,57 +115,56 @@ h2{font-size:18px;font-weight:700;letter-spacing:-.2px}
 .pill.crit{color:var(--crit);background:var(--crit-bg)}
 .pill.neu{color:var(--text2);background:var(--card2);border:1px solid var(--border)}
 .c-m{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.c-m.v{padding-top:10px;border-top:1px dashed var(--border)}
 .m-l{font-size:11px;color:var(--muted);font-weight:600}
 .m-v{font-size:16.5px;font-weight:700;font-variant-numeric:tabular-nums;margin-top:1px;white-space:nowrap}
-.m-s{font-size:11.5px;margin-top:1px}
-.lct{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:10px 12px}
-.lct-t{font-size:11.5px;color:var(--muted);font-weight:600;margin-bottom:6px}
-.lct-t b{color:var(--text);font-weight:700}
-.lct .c-m{grid-template-columns:repeat(auto-fill,minmax(96px,1fr));row-gap:10px}
-.lct .m-v{font-size:15px}
-.spark{position:relative;height:46px}
-.spark svg{display:block;width:100%;height:46px;overflow:visible}
+.m-s{font-size:11.5px;margin-top:1px;white-space:nowrap}
+.spark{position:relative;height:42px}
+.spark svg{display:block;width:100%;height:42px;overflow:visible}
 .spark-l{display:flex;justify-content:space-between;font-size:10.5px;color:var(--muted);margin-top:2px}
 .tip{position:fixed;pointer-events:none;background:var(--text);color:var(--card);font-size:12px;padding:6px 9px;border-radius:7px;z-index:50;white-space:nowrap;display:none;font-variant-numeric:tabular-nums;box-shadow:0 4px 14px rgba(0,0,0,.18)}
 .tip b{font-weight:700}
 .c-links{display:flex;gap:6px;flex-wrap:wrap;margin-top:auto}
-.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:9px;font-size:12.5px;font-weight:600;text-decoration:none;border:1px solid var(--border2);background:var(--card);cursor:pointer}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:9px;font-size:12.5px;font-weight:600;text-decoration:none;border:1px solid var(--border2);background:var(--card);cursor:pointer;white-space:nowrap}
 .btn:hover{border-color:var(--text2)}
 .btn.pri{background:var(--text);color:var(--card);border-color:var(--text)}
 .btn.pri:hover{opacity:.88}
 .btn.sm{padding:5px 9px;font-size:12px}
-.wf{font-size:11.5px;color:var(--muted)}
-.wf a{color:var(--muted)}
+.btn:disabled{opacity:.5;cursor:default}
 .empty{padding:40px;text-align:center;color:var(--muted);background:var(--card);border:1px dashed var(--border2);border-radius:14px}
+.nota{font-size:11.5px;color:var(--muted)}
 
 /* tabelas */
-.tbl-w{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow-x:auto;box-shadow:var(--shadow)}
-table{border-collapse:collapse;width:100%;font-size:13px}
+.tbl-w{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:auto;box-shadow:var(--shadow);max-height:78vh}
+table{border-collapse:separate;border-spacing:0;width:100%;font-size:13px}
 th,td{padding:9px 12px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--border);font-variant-numeric:tabular-nums}
-th{font-size:11.5px;color:var(--muted);font-weight:600;background:var(--card2);position:sticky;top:0}
-th:first-child,td:first-child{text-align:left;position:sticky;left:0;background:inherit}
+th{font-size:11.5px;color:var(--muted);font-weight:600;background:var(--card2);position:sticky;top:0;z-index:2}
+th.sort{cursor:pointer;user-select:none}
+th.sort:hover{color:var(--text)}
+th.on{color:var(--text)}
+th:first-child,td:first-child{text-align:left;position:sticky;left:0;z-index:1}
+th:first-child{z-index:3}
 td:first-child{background:var(--card);font-weight:600}
-tr:last-child td{border-bottom:0}
-tfoot td{font-weight:700;background:var(--card2)!important}
+td.l{text-align:left}
+tr:hover td{background:var(--card2)}
+tr:hover td:first-child{background:var(--card2)}
+tfoot td{font-weight:700;background:var(--card2)!important;position:sticky;bottom:0}
 td.z{color:var(--muted)}
-
-/* UniBrasil */
-.uni{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
-.panel{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;box-shadow:var(--shadow);min-width:0}
-.legend{display:flex;gap:14px;font-size:12px;color:var(--text2);margin:10px 0 4px}
-.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
-.bars svg{display:block;width:100%;height:190px;overflow:visible}
+th i,td i.dot{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:5px;vertical-align:0}
+.sep{border-left:1px solid var(--border)}
 
 /* ferramentas */
-.tools{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.tools{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(280px,100%),1fr));gap:14px}
 .tool{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;text-decoration:none;display:block;box-shadow:var(--shadow)}
 .tool:hover{border-color:var(--text2)}
 .tool b{font-size:15px}.tool p{color:var(--muted);font-size:12.5px;margin-top:4px}
 
 /* admin */
+.gate{max-width:380px;margin:30px auto;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:24px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:10px}
+.gate input{padding:9px 12px;border:1px solid var(--border2);border-radius:9px;background:var(--card2)}
+.gate label{font-size:12.5px;color:var(--text2);display:flex;gap:6px;align-items:center}
 .adm-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:14px}
-.adm-bar input{padding:7px 10px;border:1px solid var(--border2);border-radius:8px;background:var(--card2);min-width:240px;flex:1}
-.adm-msg{font-size:12.5px;color:var(--muted);width:100%}
+.adm-msg{font-size:12.5px;color:var(--muted);flex:1;min-width:200px}
 .adm-msg.ok{color:var(--ok)}.adm-msg.err{color:var(--crit)}
 .adm-row{display:grid;grid-template-columns:28px minmax(150px,1.3fr) minmax(130px,1fr) 150px minmax(160px,1.6fr) 64px;gap:10px;align-items:start;padding:10px 12px;border-bottom:1px solid var(--border)}
 .adm-row:last-child{border-bottom:0}
@@ -159,9 +176,7 @@ td.z{color:var(--muted)}
 .ord{display:flex;flex-direction:column;gap:2px}
 .ord button{border:1px solid var(--border2);background:var(--card);border-radius:5px;cursor:pointer;font-size:10px;line-height:1;padding:3px 0}
 .st-ativo{color:var(--ok)}.st-pausado{color:var(--warn)}.st-arquivado{color:var(--muted)}
-details.help{margin-top:14px;font-size:12.5px;color:var(--text2);background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 14px}
-details.help summary{cursor:pointer;font-weight:600}
-details.help ol{margin:8px 0 0 18px}details.help li{margin:3px 0}
+.adm-tbl{background:var(--card);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow)}
 
 .foot{display:flex;justify-content:center;align-items:center;gap:8px;font-size:11.5px;color:var(--muted);padding:26px 0 8px}
 .foot img{height:30px;opacity:.8}
@@ -170,16 +185,15 @@ details.help ol{margin:8px 0 0 18px}details.help li{margin:3px 0}
 
 @media (max-width:900px){
   .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .uni{grid-template-columns:1fr}
   .adm-row{grid-template-columns:28px 1fr 1fr}
   .adm-row.h{display:none}
 }
 @media (max-width:560px){
   .top,.wrap{padding-left:16px;padding-right:16px}
   .brand span{display:none}
-  .kpi-v{font-size:20px}
-  .grid{grid-template-columns:1fr}
+  .kpi-v{font-size:19px}
   .f-r{margin-left:0;width:100%}
+  .seg{overflow-x:auto;max-width:100%}
 }
 </style>
 </head>
@@ -191,8 +205,8 @@ details.help ol{margin:8px 0 0 18px}details.help li{margin:3px 0}
   </div>
   <nav class="tabs" id="tabs">
     <button class="tab on" data-p="geral">Visão geral</button>
-    <button class="tab" data-p="unibrasil">UniBrasil</button>
-    <button class="tab" data-p="meses">Investimento por mês</button>
+    <button class="tab" data-p="tabela">Tabela</button>
+    <button class="tab" data-p="meses">Por mês</button>
     <button class="tab" data-p="ferramentas">Ferramentas</button>
     <button class="tab" data-p="ex">Ex-clientes<span class="cnt" id="cntEx"></span></button>
     <button class="tab" data-p="admin">⚙ Admin</button>
@@ -200,15 +214,24 @@ details.help ol{margin:8px 0 0 18px}details.help li{margin:3px 0}
 </header>
 
 <main class="wrap">
+  <div class="pbar" id="pbar">
+    <div class="seg" id="segPer">
+      <button data-v="7d">7 dias</button><button data-v="30d">30 dias</button><button data-v="mes">Mês atual</button><button data-v="mesant">Mês anterior</button>
+    </div>
+    <div class="seg" id="segPlat"></div>
+    <span class="pinfo" id="pinfo"></span>
+  </div>
+
   <section class="page on" id="p-geral">
     <div class="kpis" id="kpis"></div>
+    <div class="plat" id="platBar"></div>
     <div class="filters">
       <input class="search" id="busca" placeholder="Buscar cliente…">
       <div id="chips" style="display:flex;gap:6px;flex-wrap:wrap"></div>
       <div class="f-r">Ordenar
         <select class="sel" id="ordem">
           <option value="manual">Ordem do cadastro</option>
-          <option value="invest">Maior investimento 7d</option>
+          <option value="invest">Maior investimento</option>
           <option value="alerta">Alertas primeiro</option>
           <option value="nome">Nome</option>
         </select>
@@ -217,14 +240,14 @@ details.help ol{margin:8px 0 0 18px}details.help li{margin:3px 0}
     <div class="grid" id="grid"></div>
   </section>
 
-  <section class="page" id="p-unibrasil">
-    <div class="sec-h"><div><h2>UniBrasil</h2><div class="sub">Graduação e Mestrado &amp; Doutorado · Meta + Google · investimento mensal</div></div></div>
-    <div class="kpis" id="uniKpis"></div>
-    <div class="uni" id="uni" style="margin-top:14px"></div>
+  <section class="page" id="p-tabela">
+    <div class="sec-h"><div><h2>Todos os clientes em tabela</h2><div class="sub">Clique no título de uma coluna para ordenar. Δ compara com o período anterior equivalente.</div></div>
+      <button class="btn sm" id="csv" style="margin-left:auto">Baixar CSV</button></div>
+    <div class="tbl-w" id="tabela"></div>
   </section>
 
   <section class="page" id="p-meses">
-    <div class="sec-h"><div><h2>Investimento por mês</h2><div class="sub">Clientes ativos e pausados com dados diários. Lançamentos com resumo só aparecem na visão geral.</div></div></div>
+    <div class="sec-h"><div><h2>Investimento por mês</h2><div class="sub">Últimos 6 meses, clientes ativos e pausados. O filtro de plataforma vale aqui também.</div></div></div>
     <div class="tbl-w" id="meses"></div>
   </section>
 
@@ -239,34 +262,38 @@ details.help ol{margin:8px 0 0 18px}details.help li{margin:3px 0}
   </section>
 
   <section class="page" id="p-admin">
-    <div class="sec-h"><div><h2>Admin · clientes</h2><div class="sub">Escolha quem aparece no painel. Ativo = visão geral · Pausado = aparece com selo · Arquivado = vai para Ex-clientes.</div></div></div>
-    <div class="adm-bar">
-      <input type="password" id="token" placeholder="Token do GitHub (fica salvo só neste navegador)">
-      <button class="btn pri" id="salvar">Salvar para todos</button>
-      <button class="btn" id="baixar">Baixar clientes.json</button>
-      <button class="btn" id="descartar">Descartar alterações</button>
-      <div class="adm-msg" id="admMsg">As mudanças já valem neste navegador. “Salvar para todos” grava no repositório sobe_painel.</div>
+    <div class="sec-h"><div><h2>Admin · clientes</h2><div class="sub">Ativo = visão geral · Pausado = aparece com selo · Arquivado = vai para Ex-clientes.</div></div></div>
+    <div id="gate" class="gate" style="display:none">
+      <b style="font-size:15px">Entrar</b>
+      <div class="nota">Mesmo usuário e senha da equipe do mapa mental.</div>
+      <input id="gUser" placeholder="Usuário" autocomplete="username">
+      <input id="gSenha" type="password" placeholder="Senha" autocomplete="current-password">
+      <input id="gNome" placeholder="Seu nome (aparece no histórico)">
+      <label><input type="checkbox" id="gLembrar" checked style="width:auto"> Manter conectado neste navegador</label>
+      <button class="btn pri" id="gEntrar">Entrar</button>
+      <div class="adm-msg err" id="gErro"></div>
     </div>
-    <div class="tbl-w" id="adm"></div>
-    <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-      <input class="search" id="novoRepo" placeholder="repo novo, ex: sobe_cliente">
-      <select class="sel" id="novoFmt">
-        <option value="template">template (perpétuo/captação)</option>
-        <option value="resumo">resumo (lançamento)</option>
-        <option value="embed">embed (dados no HTML)</option>
-        <option value="unibrasil">unibrasil</option>
-        <option value="cidades">cidades</option>
-      </select>
-      <button class="btn" id="addCli">+ Adicionar cliente</button>
+    <div id="admApp" style="display:none">
+      <div class="adm-bar">
+        <button class="btn pri" id="salvar">Salvar para todos</button>
+        <button class="btn" id="coletarJa">Atualizar números agora</button>
+        <button class="btn" id="descartar">Descartar alterações</button>
+        <button class="btn" id="baixar">Baixar clientes.json</button>
+        <div class="adm-msg" id="admMsg">As mudanças aparecem na hora neste navegador. “Salvar para todos” grava no servidor.</div>
+        <button class="btn sm" id="sair">Sair</button>
+      </div>
+      <div class="adm-tbl" id="adm"></div>
+      <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <input class="search" id="novoRepo" placeholder="repo novo, ex: sobe_cliente">
+        <select class="sel" id="novoFmt">
+          <option value="template">template (perpétuo/captação)</option>
+          <option value="embed">embed (lançamento, dados no HTML)</option>
+          <option value="unibrasil">unibrasil</option>
+          <option value="cidades">cidades</option>
+        </select>
+        <button class="btn" id="addCli">+ Adicionar cliente</button>
+      </div>
     </div>
-    <details class="help"><summary>Como criar o token (uma vez só)</summary>
-      <ol>
-        <li>GitHub → Settings → Developer settings → <b>Fine-grained tokens</b> → Generate new token.</li>
-        <li>Repository access: <b>Only select repositories → sobe_painel</b>.</li>
-        <li>Permissions: <b>Contents: Read and write</b> e <b>Actions: Read and write</b> (para disparar a coleta na hora).</li>
-        <li>Cole o token aqui. Ele fica só no seu navegador e não dá acesso a nenhum repo de cliente.</li>
-      </ol>
-    </details>
   </section>
 
   <footer class="foot">Desenvolvido por <img src="sobe.png" alt="Sobé Estratégias"></footer>
@@ -274,33 +301,39 @@ details.help ol{margin:8px 0 0 18px}details.help li{margin:3px 0}
 <div class="tip" id="tip"></div>
 
 <script>
-const REPO_PAINEL = "mggastal/sobe_painel";
+const WORKER_URL = "https://sobepainel.matheusgastal.workers.dev";
 const PAGES = "https://mggastal.github.io";
-const LS_DRAFT = "sobe_painel_rascunho", LS_TOKEN = "sobe_painel_token", LS_THEME = "sobe_painel_tema";
+const LS_DRAFT = "sobe_painel_rascunho", LS_SESSAO = "sobe_painel_sessao", LS_THEME = "sobe_painel_tema", LS_PER = "sobe_painel_periodo";
+const PLATS = {meta:"Meta", google:"Google", linkedin:"LinkedIn", tiktok:"TikTok"};
+const PER_LBL = {"7d":"7 dias", "30d":"30 dias", "mes":"Mês atual", "mesant":"Mês anterior"};
 
-let CAD = null;          // cadastro em uso (rascunho local ou o publicado)
-let CAD_PUB = null;      // cadastro publicado
-let CAD_SHA = null;
-let ST = {clientes:{}};  // status.json
-let LIVE = {};           // data.json de resumo lidos ao vivo
-let filtroTipo = "Todos";
+let CAD = null, CAD_PUB = null;
+let ST = {clientes:{}};
+let filtroTipo = "Todos", periodo = "7d", plat = "todas";
+let sortCol = "inv", sortDir = -1;
+let sessao = "";
 
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const lsGet = k => { try { return localStorage.getItem(k); } catch(e) { return null; } };
 const lsSet = (k,v) => { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch(e) {} };
+try { sessao = lsGet(LS_SESSAO) || sessionStorage.getItem(LS_SESSAO) || ""; } catch(e) {}
+periodo = PER_LBL[lsGet(LS_PER)] ? lsGet(LS_PER) : "7d";
 
 /* ---------- formatação ---------- */
 const nf0 = new Intl.NumberFormat("pt-BR",{maximumFractionDigits:0});
+const nf1 = new Intl.NumberFormat("pt-BR",{minimumFractionDigits:1,maximumFractionDigits:1});
 const nf2 = new Intl.NumberFormat("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2});
 const brl = (v,m) => (m||"R$") + " " + (Math.abs(v) >= 10000 ? nf0.format(v) : nf2.format(v));
-const brlK = (v,m) => (m||"R$") + " " + (v >= 1e6 ? nf2.format(v/1e6)+" mi" : v >= 1e4 ? nf0.format(v/1e3)+" mil" : nf0.format(v));
+const brlK = (v,m) => (m||"R$") + " " + (v >= 1e6 ? nf2.format(v/1e6)+" mi" : v >= 1e4 ? nf1.format(v/1e3)+" mil" : nf0.format(v));
 const int = v => nf0.format(Math.round(v));
 const dm = iso => iso ? iso.slice(8,10) + "/" + iso.slice(5,7) : "";
 const MES = ["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];
 const mesLbl = ym => MES[+ym.slice(5,7)-1] + "/" + ym.slice(2,4);
-function hojeBRT(){ const d = new Date(Date.now() - 3*3600e3); return d.toISOString().slice(0,10); }
+function hojeBRT(){ return new Date(Date.now() - 3*3600e3).toISOString().slice(0,10); }
 function addDias(iso, n){ const d = new Date(iso + "T12:00:00Z"); d.setUTCDate(d.getUTCDate()+n); return d.toISOString().slice(0,10); }
+function addMes(ym, n){ const d = new Date(Date.UTC(+ym.slice(0,4), +ym.slice(5,7)-1+n, 1)); return d.toISOString().slice(0,7); }
+function fimMes(ym){ return addDias(addMes(ym,1) + "-01", -1); }
 function ha(dateLike){
   const t = new Date(dateLike).getTime(); if (isNaN(t)) return "";
   const min = Math.round((Date.now()-t)/60000);
@@ -308,16 +341,39 @@ function ha(dateLike){
   if (min < 1440) return "há " + Math.round(min/60) + "h";
   const d = Math.round(min/1440); return "há " + d + (d === 1 ? " dia" : " dias");
 }
-function delta(a, b){
+function pct(a, b){ return b ? (a-b)/b*100 : null; }
+function delta(a, b, inverso){
   if (!b) return a ? '<span class="d-0">novo</span>' : '<span class="d-0">—</span>';
   const p = (a-b)/b*100, r = Math.round(p);
   if (r === 0) return '<span class="d-0">0%</span>';
-  return `<span class="${p>0?'d-up':'d-down'}">${p>0?'▲':'▼'} ${Math.abs(r)}%</span>`;
+  const bom = inverso ? p < 0 : p > 0;
+  return `<span class="${bom?'d-up':'d-down'}">${p>0?'▲':'▼'} ${Math.abs(r)}%</span>`;
+}
+
+/* ---------- períodos ---------- */
+function janelas(){
+  const hoje = hojeBRT(), ontem = addDias(hoje,-1), ym = hoje.slice(0,7), dia = +hoje.slice(8,10);
+  if (periodo === "30d") return {a:[addDias(ontem,-29), ontem], b:[addDias(ontem,-59), addDias(ontem,-30)], cmp:"30 dias anteriores"};
+  if (periodo === "mes"){ const ant = addMes(ym,-1), fimAnt = addDias(ant+"-01", dia-1);
+    return {a:[ym+"-01", hoje], b:[ant+"-01", fimAnt > fimMes(ant) ? fimMes(ant) : fimAnt], cmp:"mesmo período de " + mesLbl(ant)}; }
+  if (periodo === "mesant"){ const ant = addMes(ym,-1), ant2 = addMes(ym,-2);
+    return {a:[ant+"-01", fimMes(ant)], b:[ant2+"-01", fimMes(ant2)], cmp:mesLbl(ant2) + " inteiro"}; }
+  return {a:[addDias(ontem,-6), ontem], b:[addDias(ontem,-13), addDias(ontem,-7)], cmp:"7 dias anteriores"};
+}
+const platsAtivas = s => (s.plataformas || []).filter(p => plat === "todas" || p === plat);
+
+/* soma um intervalo: {sp, cv, imp, clk, vd, fat, por:{plat: sp}} */
+function agg(s, [de, ate]){
+  const r = {sp:0, cv:0, imp:0, clk:0, vd:0, fat:0, por:{}};
+  if (!s || !s.serie) return r;
+  const dias = s.serie.dias;
+  platsAtivas(s).forEach(p => { let t = 0; s.serie[p].forEach((v,i) => { if (dias[i] >= de && dias[i] <= ate){ t += v[0]; r.cv += v[1]; r.imp += v[2]||0; r.clk += v[3]||0; } }); r.por[p] = t; r.sp += t; });
+  if (plat === "todas" && s.serie._vendas) s.serie._vendas.forEach((v,i) => { if (dias[i] >= de && dias[i] <= ate){ r.vd += v[0]; r.fat += v[1]; } });
+  return r;
 }
 
 /* ---------- carregamento ---------- */
 async function getJSON(url){ const r = await fetch(url + (url.includes("?")?"&":"?") + "t=" + Date.now(), {cache:"no-store"}); if (!r.ok) throw new Error(r.status); return r.json(); }
-
 async function carregar(){
   $("#coleta").textContent = "carregando…";
   const [cad, st] = await Promise.all([getJSON("clientes.json"), getJSON("status.json").catch(() => ({clientes:{}}))]);
@@ -327,38 +383,21 @@ async function carregar(){
   $("#coleta").textContent = ST.gerado_em ? "dados coletados " + ha(ST.gerado_em) : "sem coleta ainda";
   $("#coleta").title = ST.gerado_em ? new Date(ST.gerado_em).toLocaleString("pt-BR") : "";
   renderTudo();
-  // resumos de lançamento são pequenos: lê ao vivo direto do dash
-  await Promise.all(CAD.clientes.filter(c => c.formato === "resumo" && c.status !== "arquivado").map(async c => {
-    try { LIVE[c.repo] = await getJSON(`${PAGES}/${c.repo}/data.json`); } catch(e) {}
-  }));
-  renderTudo();
 }
 
-/* ---------- métricas ---------- */
+/* ---------- métricas por cliente ---------- */
 function metr(c){
-  const s = ST.clientes[c.repo] || {};
-  const m = {s, moeda: s.moeda || "R$"};
+  const s = ST.clientes[c.repo] || {}, J = janelas();
+  const m = {s, moeda: s.moeda || "R$", A: agg(s, J.a), B: agg(s, J.b), vendas: !!s.tem_vendas && plat === "todas"};
   if (s.serie){
-    const dias = s.serie.dias, hoje = hojeBRT(), ontem = addDias(hoje,-1);
-    const soma = (de, ate) => { let sp=0, cv=0; s.plataformas.forEach(p => s.serie[p].forEach((v,i) => { if (dias[i] >= de && dias[i] <= ate){ sp += v[0]; cv += v[1]; } })); return [sp,cv]; };
-    m.d7 = soma(addDias(ontem,-6), ontem);
-    m.p7 = soma(addDias(ontem,-13), addDias(ontem,-7));
-    m.mtd = soma(hoje.slice(0,8)+"01", hoje);
-    m.mtdAnt = soma(addDias(hoje.slice(0,8)+"01",-1).slice(0,8)+"01", addDias(addDias(hoje.slice(0,8)+"01",-1).slice(0,8)+"01", +(+hoje.slice(8,10))-1));
-    const ini = addDias(hoje,-29);
-    m.spark = dias.map((d,i) => [d, s.plataformas.reduce((a,p) => a + s.serie[p][i][0], 0)]).filter(x => x[0] >= ini && x[0] <= hoje);
-    m.ultimo = s.ultimo_dia;
+    const hoje = hojeBRT(), ini = addDias(hoje,-29), dias = s.serie.dias;
+    m.spark = dias.map((d,i) => [d, platsAtivas(s).reduce((a,p) => a + s.serie[p][i][0], 0)]).filter(x => x[0] >= ini && x[0] <= hoje);
   }
-  const live = LIVE[c.repo];
-  if (c.formato === "resumo"){
-    m.lct = live ? {cod: live.lancamento, kpis: live.kpis || {}, gerado: live.atualizado} : (s.lancamento ? {...s.lancamento, gerado: s.gerado} : null);
-  } else if (s.lancamento && s.lancamento.cod){ m.lctCod = s.lancamento.cod; }
-  m.saude = saude(c, m);
+  m.lct = typeof s.lancamento === "string" ? s.lancamento : "";
+  m.saude = saude(c, s);
   return m;
 }
-
-function saude(c, m){
-  const s = m.s;
+function saude(c, s){
   if (c.status === "arquivado") return {cls:"neu", txt:"Arquivado", n:0};
   if (!s || s.ok === undefined) return {cls:"neu", txt:"Aguardando coleta", n:1};
   if (s.ok === false) return {cls:"crit", txt:"Dados ilegíveis", n:3, det:s.erro};
@@ -367,49 +406,37 @@ function saude(c, m){
   const horas = wf.quando ? (Date.now() - new Date(wf.quando))/36e5 : null;
   if (horas !== null && horas > 30) return {cls:"warn", txt:"Sem atualizar " + ha(wf.quando), n:2};
   if (c.status === "pausado") return {cls:"neu", txt:"Pausado", n:0};
-  if (m.ultimo && m.ultimo < addDias(hojeBRT(), -3)) return {cls:"warn", txt:"Sem investimento desde " + dm(m.ultimo), n:2};
+  if (!s.ultimo_dia) return {cls:"warn", txt:"Sem investimento", n:2};
+  if (s.ultimo_dia < addDias(hojeBRT(), -3)) return {cls:"warn", txt:"Sem investimento desde " + dm(s.ultimo_dia), n:2};
   return {cls:"ok", txt: wf.quando ? "Atualizado " + ha(wf.quando) : "Atualizado", n:0};
 }
 
 /* ---------- gráficos ---------- */
+function stackHTML(por, total, sm){
+  const ps = Object.keys(PLATS).filter(p => por[p] > 0);
+  if (!total) return `<div class="stack${sm?" sm":""}"></div>`;
+  return `<div class="stack${sm?" sm":""}">${ps.map(p => `<span style="width:${por[p]/total*100}%;background:var(--${p})" title="${PLATS[p]}"></span>`).join("")}</div>`;
+}
+function legHTML(por, total, moeda, sm){
+  const ps = Object.keys(PLATS).filter(p => por[p] > 0);
+  if (!ps.length) return `<div class="leg${sm?" sm":""}"><span class="nota">Sem investimento no período</span></div>`;
+  return `<div class="leg${sm?" sm":""}">${ps.map(p => `<span><i style="background:var(--${p})"></i>${PLATS[p]} <b>${sm ? brlK(por[p], moeda) : brl(por[p], moeda)}</b>${sm ? "" : ` · ${Math.round(por[p]/total*100)}%`}</span>`).join("")}</div>`;
+}
 function sparkSVG(pts, moeda){
   if (!pts || !pts.length) return "";
-  const W = 300, H = 46, max = Math.max(...pts.map(p => p[1]), 1), n = pts.length;
+  const W = 300, H = 42, max = Math.max(...pts.map(p => p[1]), 1), n = pts.length;
   const x = i => n === 1 ? W/2 : i/(n-1)*W, y = v => H - 3 - v/max*(H-8);
   const linha = pts.map((p,i) => (i?"L":"M") + x(i).toFixed(1) + " " + y(p[1]).toFixed(1)).join(" ");
-  const area = linha + ` L${W} ${H} L0 ${H} Z`;
   return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" data-pts='${esc(JSON.stringify(pts))}' data-moeda="${esc(moeda)}">
-    <path d="${area}" fill="var(--spark)" opacity=".1"/>
+    <path d="${linha} L${W} ${H} L0 ${H} Z" fill="var(--spark)" opacity=".1"/>
     <path d="${linha}" fill="none" stroke="var(--spark)" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linejoin="round"/>
-    <line class="hl" x1="0" x2="0" y1="0" y2="${H}" stroke="var(--text2)" stroke-width="1" vector-effect="non-scaling-stroke" opacity="0"/>
-  </svg>`;
+    <line class="hl" x1="0" x2="0" y1="0" y2="${H}" stroke="var(--text2)" stroke-width="1" vector-effect="non-scaling-stroke" opacity="0"/></svg>`;
 }
-function barrasSVG(meses){
-  // empilhado Meta + Google por mês
-  const W = 560, H = 190, padB = 22, padT = 8, n = meses.length;
-  if (!n) return "";
-  const tot = meses.map(m => m.meta + m.google), max = Math.max(...tot, 1);
-  const gap = 8, bw = (W - gap*(n-1))/n, esc_ = v => v/max*(H-padB-padT);
-  let s = `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">`;
-  meses.forEach((m,i) => {
-    const x = i*(bw+gap), hM = esc_(m.meta), hG = esc_(m.google), base = H - padB;
-    const tip = esc(JSON.stringify({t: mesLbl(m.ym), meta: m.meta, google: m.google}));
-    if (hM > 0) s += `<rect x="${x}" y="${base-hM}" width="${bw}" height="${Math.max(hM - (hG>0?1:0),0)}" rx="${hG>0?0:3}" fill="var(--meta)"/>`;
-    if (hG > 0) s += `<rect x="${x}" y="${base-hM-hG}" width="${bw}" height="${Math.max(hG-1,0)}" rx="3" fill="var(--google)"/>`;
-    s += `<rect class="hit" x="${x}" y="${padT}" width="${bw}" height="${H-padB-padT}" fill="transparent" data-tip='${tip}'/>`;
-    s += `<text x="${x+bw/2}" y="${H-6}" text-anchor="middle" font-size="10.5" fill="var(--muted)">${mesLbl(m.ym)}</text>`;
-  });
-  s += `<line x1="0" x2="${W}" y1="${H-padB}" y2="${H-padB}" stroke="var(--border2)" vector-effect="non-scaling-stroke"/></svg>`;
-  return s;
-}
-
-/* tooltip */
 const tip = $("#tip");
 function showTip(e, html){ tip.innerHTML = html; tip.style.display = "block";
   const r = tip.getBoundingClientRect(); let x = e.clientX + 12, y = e.clientY - r.height - 10;
   if (x + r.width > innerWidth - 8) x = e.clientX - r.width - 12; if (y < 8) y = e.clientY + 14;
   tip.style.left = x + "px"; tip.style.top = y + "px"; }
-function hideTip(){ tip.style.display = "none"; }
 document.addEventListener("mousemove", e => {
   const svg = e.target.closest && e.target.closest(".spark svg");
   document.querySelectorAll(".spark .hl").forEach(l => { if (!svg || !svg.contains(l)) l.setAttribute("opacity", 0); });
@@ -420,13 +447,10 @@ document.addEventListener("mousemove", e => {
     hl.setAttribute("x1", xv); hl.setAttribute("x2", xv); hl.setAttribute("opacity", .6);
     return showTip(e, `${dm(pts[i][0])} · <b>${brl(pts[i][1], svg.dataset.moeda)}</b>`);
   }
-  const hit = e.target.closest && e.target.closest("rect.hit");
-  if (hit){ const d = JSON.parse(hit.dataset.tip);
-    return showTip(e, `<b>${d.t}</b><br>Meta ${brl(d.meta)}<br>Google ${brl(d.google)}<br>Total <b>${brl(d.meta+d.google)}</b>`); }
-  hideTip();
+  tip.style.display = "none";
 });
 
-/* ---------- render ---------- */
+/* ---------- visão geral ---------- */
 function logoHTML(c){
   const letra = esc((c.nome || c.repo).replace(/^Dra?\.? /,"").slice(0,2).toUpperCase());
   if (c.logo) return `<div class="logo img"><img src="${PAGES}/${c.repo}/logo.png" alt="" onerror="this.parentNode.classList.remove('img');this.parentNode.style.setProperty('--c','${esc(c.cor)}');this.replaceWith('${letra}')"></div>`;
@@ -436,60 +460,53 @@ function linksHTML(c){
   return `<div class="c-links"><a class="btn pri sm" href="${PAGES}/${c.repo}/" target="_blank" rel="noopener">Abrir dash ↗</a>` +
     (c.links || []).map(l => `<a class="btn sm" href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label)}</a>`).join("") + `</div>`;
 }
-function kpisLct(k, moeda){
-  const it = [["Investimento", k.spend != null ? brlK(k.spend, moeda) : null]];
-  if (k.vendas != null) it.push(["Vendas", int(k.vendas)]);
-  if (k.leads != null) it.push(["Leads", int(k.leads)]);
-  if (k.cpa != null) it.push(["CPA", brl(k.cpa, moeda)]);
-  if (k.cpl != null) it.push(["CPL", brl(k.cpl, moeda)]);
-  if (k.faturamento != null) it.push(["Faturamento", brlK(k.faturamento, moeda)]);
-  if (k.faturamento != null && k.spend) it.push(["ROAS", nf2.format(k.faturamento/k.spend) + "x"]);
-  return `<div class="c-m">${it.filter(x => x[1] != null).map(([l,v]) => `<div><div class="m-l">${l}</div><div class="m-v">${v}</div></div>`).join("")}</div>`;
-}
+const metrica = (l, v, s) => `<div><div class="m-l">${l}</div><div class="m-v">${v}</div><div class="m-s">${s || "&nbsp;"}</div></div>`;
 function cardHTML(c){
-  const m = metr(c), sa = m.saude;
-  let corpo = "";
-  if (m.d7){
-    const cpl = m.d7[1] ? m.d7[0]/m.d7[1] : null, cplP = m.p7[1] ? m.p7[0]/m.p7[1] : null;
-    corpo += `<div class="c-m">
-      <div><div class="m-l">Invest. 7d</div><div class="m-v">${brlK(m.d7[0], m.moeda)}</div><div class="m-s">${delta(m.d7[0], m.p7[0])}</div></div>
-      <div><div class="m-l">Conversões 7d</div><div class="m-v">${m.d7[1] ? int(m.d7[1]) : "—"}</div><div class="m-s">${m.d7[1] ? delta(m.d7[1], m.p7[1]) : ""}</div></div>
-      <div><div class="m-l">Custo/conv.</div><div class="m-v">${cpl ? brl(cpl, m.moeda) : "—"}</div><div class="m-s">${cpl && cplP ? `<span class="d-0">ant. ${brl(cplP, m.moeda)}</span>` : ""}</div></div>
-    </div>
-    <div><div class="spark">${sparkSVG(m.spark, m.moeda)}</div>
-    <div class="spark-l"><span>Investimento diário · 30 dias</span><span>Mês: <b style="color:var(--text)">${brlK(m.mtd[0], m.moeda)}</b></span></div></div>`;
-  }
-  if (m.lct){
-    corpo += `<div class="lct"><div class="lct-t">${m.lct.cod ? `Lançamento <b>${esc(m.lct.cod)}</b> · ` : "Período atual do dash · "}acumulado</div>${kpisLct(m.lct.kpis || {}, m.moeda)}</div>`;
-  }
-  if (!corpo) corpo = `<div class="empty" style="padding:18px">${m.s.ok === false ? "Não consegui ler os dados deste dash." : "Sem dados coletados ainda."}</div>`;
-  const wf = (m.s && m.s.workflow) || {};
-  const badges = [c.status === "pausado" && sa.cls !== "neu" ? `<span class="pill neu">Pausado</span>` : "", m.lctCod ? `<span class="pill neu">${esc(m.lctCod)}</span>` : ""].join("");
+  const m = metr(c), sa = m.saude, A = m.A, B = m.B, mo = m.moeda;
+  const cpa = A.cv ? A.sp/A.cv : null, cpaB = B.cv ? B.sp/B.cv : null;
+  let corpo = `<div class="c-m">
+      ${metrica("Investimento", brlK(A.sp, mo), delta(A.sp, B.sp))}
+      ${metrica("Conversões", A.cv ? int(A.cv) : "—", A.cv || B.cv ? delta(A.cv, B.cv) : "")}
+      ${metrica("Custo/conv.", cpa ? brl(cpa, mo) : "—", cpa && cpaB ? delta(cpa, cpaB, true) : "")}
+    </div>`;
+  if (m.vendas) corpo += `<div class="c-m v">
+      ${metrica("Vendas", int(A.vd), delta(A.vd, B.vd))}
+      ${metrica("Faturamento", brlK(A.fat, mo), delta(A.fat, B.fat))}
+      ${metrica("ROAS", A.sp && A.fat ? nf2.format(A.fat/A.sp) + "x" : "—", "")}
+    </div>`;
+  corpo += `<div>${stackHTML(A.por, A.sp, true)}${legHTML(A.por, A.sp, mo, true)}</div>`;
+  if (m.spark) corpo += `<div><div class="spark">${sparkSVG(m.spark, mo)}</div><div class="spark-l"><span>Investimento diário · últimos 30 dias</span></div></div>`;
+  if (m.s.ok === false) corpo = `<div class="empty" style="padding:18px">Não consegui ler os dados deste dash.</div>`;
+  const badges = [c.status === "pausado" && sa.cls !== "neu" ? `<span class="pill neu">Pausado</span>` : "", m.lct ? `<span class="pill neu">${esc(m.lct)}</span>` : ""].join("");
   return `<article class="card">
     <div class="c-h">${logoHTML(c)}<div class="c-n"><b title="${esc(c.nome)}">${esc(c.nome)}</b><span>${esc(c.tipo || "")}</span></div></div>
     <div style="display:flex;gap:6px;flex-wrap:wrap"><span class="pill ${sa.cls}" title="${esc(sa.det || "")}">${sa.cls==="ok"?"●":sa.cls==="crit"?"✕":sa.cls==="warn"?"▲":"○"} ${esc(sa.txt)}</span>${badges}</div>
     ${corpo}
     ${linksHTML(c)}
-    ${wf.url ? `<div class="wf">Última execução: <a href="${esc(wf.url)}" target="_blank" rel="noopener">${esc(wf.nome || "Action")}</a> · ${wf.quando ? new Date(wf.quando).toLocaleString("pt-BR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}) : ""}</div>` : ""}
   </article>`;
 }
+const visiveis = () => CAD.clientes.filter(c => c.status !== "arquivado");
 
-function visiveis(){ return CAD.clientes.filter(c => c.status !== "arquivado"); }
-
-function renderKpis(){
-  const vis = visiveis().map(c => [c, metr(c)]);
-  let d7 = 0, p7 = 0, mtd = 0, mtdA = 0, cv = 0, cvP = 0;
-  vis.forEach(([c,m]) => { if (m.d7){ d7 += m.d7[0]; p7 += m.p7[0]; mtd += m.mtd[0]; mtdA += m.mtdAnt[0]; cv += m.d7[1]; cvP += m.p7[1]; } });
-  const alertas = vis.filter(([c,m]) => m.saude.n >= 2);
-  const ativos = vis.filter(([c]) => c.status === "ativo").length, paus = vis.length - ativos;
-  $("#kpis").innerHTML = `
-    <div class="kpi"><div class="kpi-l">Investimento 7 dias</div><div class="kpi-v">${brl(d7)}</div><div class="kpi-s">${delta(d7,p7)} vs 7 dias anteriores</div></div>
-    <div class="kpi"><div class="kpi-l">Investimento no mês</div><div class="kpi-v">${brl(mtd)}</div><div class="kpi-s">${delta(mtd,mtdA)} vs mesmo período do mês passado</div></div>
-    <div class="kpi"><div class="kpi-l">Conversões 7 dias</div><div class="kpi-v">${int(cv)}</div><div class="kpi-s">${delta(cv,cvP)} · leads + conversões Google</div></div>
-    <div class="kpi"><div class="kpi-l">Clientes</div><div class="kpi-v">${ativos}<span style="font-size:14px;color:var(--muted);font-weight:600"> ativos${paus ? " · " + paus + " pausado" + (paus>1?"s":"") : ""}</span></div>
-      <div class="kpi-s">${alertas.length ? `<span class="d-down">${alertas.length} com alerta</span>: ${alertas.map(([c]) => esc(c.nome.split(" · ")[0])).slice(0,3).join(", ")}${alertas.length>3?"…":""}` : '<span class="d-up">todos os dashs em dia</span>'}</div></div>`;
+function totais(){
+  const T = {A:{sp:0,cv:0,imp:0,clk:0,vd:0,fat:0,por:{}}, B:{sp:0,cv:0,imp:0,clk:0,vd:0,fat:0,por:{}}};
+  const linhas = visiveis().map(c => [c, metr(c)]);
+  linhas.forEach(([c,m]) => ["A","B"].forEach(k => { const x = m[k], t = T[k];
+    ["sp","cv","imp","clk","vd","fat"].forEach(f => t[f] += x[f]); Object.entries(x.por).forEach(([p,v]) => t.por[p] = (t.por[p]||0) + v); }));
+  return {T, linhas};
 }
-
+function renderKpis(){
+  const {T, linhas} = totais(), A = T.A, B = T.B, J = janelas();
+  const alertas = linhas.filter(([c,m]) => m.saude.n >= 2);
+  const ativos = linhas.filter(([c]) => c.status === "ativo").length, paus = linhas.length - ativos;
+  const temVendas = linhas.some(([c,m]) => m.vendas);
+  $("#kpis").innerHTML = `
+    <div class="kpi"><div class="kpi-l">Investimento · ${PER_LBL[periodo]}</div><div class="kpi-v">${brl(A.sp)}</div><div class="kpi-s">${delta(A.sp,B.sp)} vs ${J.cmp}</div></div>
+    <div class="kpi"><div class="kpi-l">Conversões</div><div class="kpi-v">${int(A.cv)}</div><div class="kpi-s">${delta(A.cv,B.cv)} · custo médio ${A.cv ? brl(A.sp/A.cv) : "—"}</div></div>
+    <div class="kpi"><div class="kpi-l">Vendas · faturamento</div><div class="kpi-v">${temVendas ? int(A.vd) + ' <span style="font-size:14px;color:var(--muted);font-weight:600">· ' + brlK(A.fat) + "</span>" : "—"}</div><div class="kpi-s">${temVendas ? delta(A.fat,B.fat) + " no faturamento · clientes com Hotmart" : plat === "todas" ? "nenhum cliente com vendas" : "vendas não se dividem por plataforma"}</div></div>
+    <div class="kpi"><div class="kpi-l">Clientes</div><div class="kpi-v">${ativos}<span style="font-size:14px;color:var(--muted);font-weight:600"> ativos${paus ? " · " + paus + " pausado" + (paus>1?"s":"") : ""}</span></div>
+      <div class="kpi-s">${alertas.length ? `<span class="d-down">${alertas.length} com alerta</span>: ${alertas.map(([c]) => esc(c.nome)).slice(0,3).join(", ")}${alertas.length>3?"…":""}` : '<span class="d-up">todos os dashs em dia</span>'}</div></div>`;
+  $("#platBar").innerHTML = `<div class="kpi-l" style="margin-bottom:9px">Investimento por plataforma · ${PER_LBL[periodo]}</div>${stackHTML(A.por, A.sp)}${legHTML(A.por, A.sp, "R$")}`;
+}
 function renderGrid(){
   const tipos = ["Todos", ...new Set(visiveis().map(c => (c.tipo || "Outros").split(" · ")[0]))];
   if (!tipos.includes(filtroTipo)) filtroTipo = "Todos";
@@ -497,61 +514,86 @@ function renderGrid(){
   const q = $("#busca").value.trim().toLowerCase(), ord = $("#ordem").value;
   let lst = visiveis().filter(c => (filtroTipo === "Todos" || (c.tipo || "Outros").split(" · ")[0] === filtroTipo) && (!q || (c.nome + " " + c.repo).toLowerCase().includes(q)));
   const M = new Map(lst.map(c => [c.repo, metr(c)]));
-  if (ord === "invest") lst.sort((a,b) => ((M.get(b.repo).d7||[0])[0]) - ((M.get(a.repo).d7||[0])[0]));
+  if (ord === "invest") lst.sort((a,b) => M.get(b.repo).A.sp - M.get(a.repo).A.sp);
   if (ord === "alerta") lst.sort((a,b) => M.get(b.repo).saude.n - M.get(a.repo).saude.n);
   if (ord === "nome") lst.sort((a,b) => a.nome.localeCompare(b.nome, "pt-BR"));
-  $("#grid").innerHTML = lst.length ? lst.map(cardHTML).join("") : `<div class="empty">Nenhum cliente com esse filtro.</div>`;
+  $("#grid").innerHTML = lst.length ? lst.map(c => cardHTML(c)).join("") : `<div class="empty">Nenhum cliente com esse filtro.</div>`;
 }
 
-function renderUni(){
-  const us = CAD.clientes.filter(c => c.grupo === "UniBrasil" && c.status !== "arquivado");
-  const tab = document.querySelector('.tab[data-p="unibrasil"]'); tab.style.display = us.length ? "" : "none";
-  if (!us.length) return;
-  let mtd = 0, mtdA = 0, d7 = 0, p7 = 0, cv = 0;
-  const paineis = us.map(c => {
-    const m = metr(c), s = m.s;
-    if (m.d7){ mtd += m.mtd[0]; mtdA += m.mtdAnt[0]; d7 += m.d7[0]; p7 += m.p7[0]; cv += m.mtd[1]; }
-    // eixo fixo: os 12 meses até o atual
-    const ymHoje = hojeBRT().slice(0,7), mp = s.meses_plat || {};
-    const meses = Array.from({length:12}, (_,k) => { const d = new Date(Date.UTC(+ymHoje.slice(0,4), +ymHoje.slice(5,7)-1-(11-k), 1)); return d.toISOString().slice(0,7); })
-      .map(ym => ({ym, meta: (mp.meta||{})[ym] || 0, google: (mp.google||{})[ym] || 0}));
-    return `<div class="panel">
-      <div class="c-h">${logoHTML(c)}<div class="c-n"><b>${esc(c.nome)}</b><span><span class="pill ${m.saude.cls}">${esc(m.saude.txt)}</span></span></div></div>
-      <div class="c-m" style="margin-top:14px">
-        <div><div class="m-l">Mês atual</div><div class="m-v">${m.mtd ? brlK(m.mtd[0]) : "—"}</div><div class="m-s">${m.mtd ? delta(m.mtd[0], m.mtdAnt[0]) : ""}</div></div>
-        <div><div class="m-l">Conversões no mês</div><div class="m-v">${m.mtd ? int(m.mtd[1]) : "—"}</div></div>
-        <div><div class="m-l">Custo/conv. mês</div><div class="m-v">${m.mtd && m.mtd[1] ? brl(m.mtd[0]/m.mtd[1]) : "—"}</div></div>
-      </div>
-      <div class="legend"><span><i style="background:var(--meta)"></i>Meta</span><span><i style="background:var(--google)"></i>Google</span></div>
-      <div class="bars">${barrasSVG(meses)}</div>
-      <div style="margin-top:12px">${linksHTML(c)}</div>
-    </div>`;
-  });
-  $("#uniKpis").innerHTML = `
-    <div class="kpi"><div class="kpi-l">Investimento no mês</div><div class="kpi-v">${brl(mtd)}</div><div class="kpi-s">${delta(mtd,mtdA)} vs mesmo período do mês passado</div></div>
-    <div class="kpi"><div class="kpi-l">Investimento 7 dias</div><div class="kpi-v">${brl(d7)}</div><div class="kpi-s">${delta(d7,p7)} vs 7 dias anteriores</div></div>
-    <div class="kpi"><div class="kpi-l">Conversões no mês</div><div class="kpi-v">${int(cv)}</div><div class="kpi-s">leads Meta + conversões Google</div></div>
-    <div class="kpi"><div class="kpi-l">Custo/conv. no mês</div><div class="kpi-v">${cv ? brl(mtd/cv) : "—"}</div><div class="kpi-s">as duas unidades</div></div>`;
-  $("#uni").innerHTML = paineis.join("");
+/* ---------- tabela ---------- */
+function colunas(){
+  const ps = Object.keys(PLATS).filter(p => (plat === "todas" || p === plat) && visiveis().some(c => ((ST.clientes[c.repo]||{}).plataformas||[]).includes(p)));
+  const cols = [
+    {k:"nome", t:"Cliente", v:r => r.c.nome, f:r => esc(r.c.nome), txt:true},
+    {k:"saude", t:"Situação", v:r => r.m.saude.n, f:r => `<span class="pill ${r.m.saude.cls}">${esc(r.m.saude.txt)}</span>`, l:true},
+    {k:"inv", t:"Investimento", v:r => r.A.sp, f:r => brl(r.A.sp, r.m.moeda), sum:"sp"},
+    {k:"dinv", t:"Δ invest.", v:r => pct(r.A.sp, r.B.sp) ?? -1e9, f:r => delta(r.A.sp, r.B.sp)},
+  ];
+  if (plat === "todas" && ps.length > 1) ps.forEach(p => cols.push({k:"p_"+p, t:`<i style="background:var(--${p})"></i>${PLATS[p]}`, csv:PLATS[p], v:r => r.A.por[p]||0, f:r => r.A.por[p] ? brl(r.A.por[p], r.m.moeda) : "—", z:r => !r.A.por[p], sumP:p, cls:p===ps[0]?"sep":""}));
+  cols.push(
+    {k:"imp", t:"Impressões", v:r => r.A.imp, f:r => r.A.imp ? int(r.A.imp) : "—", sum:"imp", cls:"sep"},
+    {k:"clk", t:"Cliques", v:r => r.A.clk, f:r => r.A.clk ? int(r.A.clk) : "—", sum:"clk"},
+    {k:"ctr", t:"CTR", v:r => r.A.imp ? r.A.clk/r.A.imp : 0, f:r => r.A.imp ? nf2.format(r.A.clk/r.A.imp*100) + "%" : "—", tot:T => T.imp ? nf2.format(T.clk/T.imp*100) + "%" : "—"},
+    {k:"cpm", t:"CPM", v:r => r.A.imp ? r.A.sp/r.A.imp*1000 : 0, f:r => r.A.imp ? brl(r.A.sp/r.A.imp*1000, r.m.moeda) : "—", tot:T => T.imp ? brl(T.sp/T.imp*1000) : "—"},
+    {k:"cpc", t:"CPC", v:r => r.A.clk ? r.A.sp/r.A.clk : 0, f:r => r.A.clk ? brl(r.A.sp/r.A.clk, r.m.moeda) : "—", tot:T => T.clk ? brl(T.sp/T.clk) : "—"},
+    {k:"cv", t:"Conversões", v:r => r.A.cv, f:r => r.A.cv ? int(r.A.cv) : "—", sum:"cv", cls:"sep"},
+    {k:"dcv", t:"Δ conv.", v:r => pct(r.A.cv, r.B.cv) ?? -1e9, f:r => r.A.cv || r.B.cv ? delta(r.A.cv, r.B.cv) : "—"},
+    {k:"cpa", t:"Custo/conv.", v:r => r.A.cv ? r.A.sp/r.A.cv : 0, f:r => r.A.cv ? brl(r.A.sp/r.A.cv, r.m.moeda) : "—", tot:T => T.cv ? brl(T.sp/T.cv) : "—"},
+  );
+  if (plat === "todas") cols.push(
+    {k:"vd", t:"Vendas", v:r => r.A.vd, f:r => r.m.vendas ? int(r.A.vd) : "—", sum:"vd", cls:"sep"},
+    {k:"fat", t:"Faturamento", v:r => r.A.fat, f:r => r.m.vendas ? brl(r.A.fat, r.m.moeda) : "—", sum:"fat"},
+    {k:"roas", t:"ROAS", v:r => r.A.sp && r.m.vendas ? r.A.fat/r.A.sp : 0, f:r => r.m.vendas && r.A.sp ? nf2.format(r.A.fat/r.A.sp) + "x" : "—"},
+  );
+  return cols;
 }
+function linhasTabela(){
+  return visiveis().map(c => { const m = metr(c); return {c, m, A:m.A, B:m.B}; });
+}
+function renderTabela(){
+  const cols = colunas(), rows = linhasTabela(), col = cols.find(x => x.k === sortCol) || cols[2];
+  rows.sort((a,b) => { const va = col.v(a), vb = col.v(b); return (typeof va === "string" ? va.localeCompare(vb, "pt-BR") : va - vb) * sortDir; });
+  const T = totais().T.A;
+  const tot = x => x.k === "nome" ? "Total" : x.sum ? (["imp","clk","cv","vd"].includes(x.sum) ? int(T[x.sum]) : brl(T[x.sum])) : x.sumP ? brl(T.por[x.sumP]||0) : x.tot ? x.tot(T) : "";
+  $("#tabela").innerHTML = `<table><thead><tr>${cols.map(x => `<th class="sort ${x.k===col.k?"on":""} ${x.cls||""}" data-k="${x.k}" style="${x.l||x.txt?"text-align:left":""}">${x.t}${x.k===col.k?(sortDir>0?" ↑":" ↓"):""}</th>`).join("")}</tr></thead>
+    <tbody>${rows.map(r => `<tr>${cols.map(x => `<td class="${x.l?"l ":""}${x.cls||""}${x.z&&x.z(r)?" z":""}">${x.f(r)}</td>`).join("")}</tr>`).join("")}</tbody>
+    <tfoot><tr>${cols.map(x => `<td class="${x.cls||""}">${tot(x)}</td>`).join("")}</tr></tfoot></table>`;
+}
+$("#tabela").addEventListener("click", e => {
+  const th = e.target.closest("th.sort"); if (!th) return;
+  if (sortCol === th.dataset.k) sortDir *= -1; else { sortCol = th.dataset.k; sortDir = ["nome"].includes(sortCol) ? 1 : -1; }
+  renderTabela();
+});
+$("#csv").onclick = () => {
+  const cols = colunas().filter(x => x.k !== "saude"), rows = linhasTabela();
+  const val = (x, r) => { const v = x.v(r); return typeof v === "number" ? (v <= -1e9 ? "" : String(Math.round(v*100)/100).replace(".", ",")) : '"' + String(v).replace(/"/g,'""') + '"'; };
+  const J = janelas();
+  const txt = [cols.map(x => '"' + (x.csv || x.t.replace(/<[^>]+>/g,"")) + '"').join(";"), ...rows.map(r => cols.map(x => val(x, r)).join(";"))].join("\n");
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob(["﻿" + txt], {type:"text/csv"}));
+  a.download = `painel_sobe_${J.a[0]}_${J.a[1]}${plat !== "todas" ? "_" + plat : ""}.csv`; a.click(); URL.revokeObjectURL(a.href);
+};
 
+/* ---------- por mês ---------- */
 function renderMeses(){
-  const lst = visiveis().filter(c => (ST.clientes[c.repo] || {}).meses);
-  const yms = [...new Set(lst.flatMap(c => ST.clientes[c.repo].meses.map(m => m[0])))].sort().slice(-6);
+  const lst = visiveis().filter(c => (ST.clientes[c.repo] || {}).meses_plat);
+  const ymHoje = hojeBRT().slice(0,7), yms = Array.from({length:6}, (_,k) => addMes(ymHoje, k-5));
   if (!lst.length){ $("#meses").innerHTML = '<div class="empty">Sem dados mensais.</div>'; return; }
-  const tot = yms.map(() => 0);
+  const tot = yms.map(() => 0), porP = {};
+  const v = (c, ym, p) => ((ST.clientes[c.repo].meses_plat || {})[p] || {})[ym] || 0;
   const linhas = lst.map(c => {
-    const mp = Object.fromEntries(ST.clientes[c.repo].meses.map(m => [m[0], m[1]]));
-    return `<tr><td>${esc(c.nome)}</td>${yms.map((ym,i) => { const v = mp[ym] || 0; tot[i] += v; return `<td class="${v?"":"z"}">${v ? brl(v) : "—"}</td>`; }).join("")}</tr>`;
+    const s = ST.clientes[c.repo], ps = (s.plataformas || []).filter(p => plat === "todas" || p === plat);
+    return `<tr><td>${esc(c.nome)}</td>${yms.map((ym,i) => { let t = 0; ps.forEach(p => { const x = v(c, ym, p); t += x; porP[p] = porP[p] || yms.map(() => 0); porP[p][i] += x; }); tot[i] += t; return `<td class="${t?"":"z"}">${t ? brl(t) : "—"}</td>`; }).join("")}</tr>`;
   });
-  $("#meses").innerHTML = `<table><thead><tr><th>Cliente</th>${yms.map(ym => `<th>${mesLbl(ym)}${ym === hojeBRT().slice(0,7) ? " (parcial)" : ""}</th>`).join("")}</tr></thead>
-    <tbody>${linhas.join("")}</tbody><tfoot><tr><td>Total</td>${tot.map(v => `<td>${brl(v)}</td>`).join("")}</tr></tfoot></table>`;
+  const pl = Object.keys(PLATS).filter(p => porP[p] && porP[p].some(x => x));
+  $("#meses").innerHTML = `<table><thead><tr><th>Cliente</th>${yms.map(ym => `<th>${mesLbl(ym)}${ym === ymHoje ? " (parcial)" : ""}</th>`).join("")}</tr></thead>
+    <tbody>${linhas.join("")}${plat === "todas" && pl.length > 1 ? pl.map((p,j) => `<tr><td style="${j?"":"border-top:2px solid var(--border2)"}"><i class="dot" style="background:var(--${p})"></i>${PLATS[p]}</td>${porP[p].map(x => `<td class="${x?"":"z"}" style="${j?"":"border-top:2px solid var(--border2)"}">${x ? brl(x) : "—"}</td>`).join("")}</tr>`).join("") : ""}</tbody>
+    <tfoot><tr><td>Total</td>${tot.map(x => `<td>${brl(x)}</td>`).join("")}</tr></tfoot></table>`;
 }
 
 function renderTools(){
   $("#tools").innerHTML = (CAD.ferramentas || []).map(f => `<a class="tool" href="${esc(f.url)}" target="_blank" rel="noopener"><b>${esc(f.nome)} ↗</b><p>${esc(f.descricao || "")}</p></a>`).join("");
 }
-
 function renderEx(){
   const ex = CAD.clientes.filter(c => c.status === "arquivado");
   $("#cntEx").textContent = ex.length ? ex.length : "";
@@ -559,25 +601,56 @@ function renderEx(){
       <div class="c-h">${logoHTML(c)}<div class="c-n"><b>${esc(c.nome)}</b><span>${esc(c.tipo || "")}</span></div></div>
       ${linksHTML(c)}</article>`).join("") : '<div class="empty">Nenhum cliente arquivado.</div>';
 }
+function renderBarra(){
+  document.querySelectorAll("#segPer button").forEach(b => b.classList.toggle("on", b.dataset.v === periodo));
+  const presentes = Object.keys(PLATS).filter(p => visiveis().some(c => ((ST.clientes[c.repo]||{}).plataformas||[]).includes(p)));
+  if (plat !== "todas" && !presentes.includes(plat)) plat = "todas";
+  $("#segPlat").innerHTML = `<button data-v="todas" class="${plat==="todas"?"on":""}">Todas</button>` + presentes.map(p => `<button data-v="${p}" class="${plat===p?"on":""}"><i style="background:var(--${p})"></i>${PLATS[p]}</button>`).join("");
+  const J = janelas(); $("#pinfo").textContent = `${dm(J.a[0])} a ${dm(J.a[1])} · comparado com ${J.cmp}`;
+}
 
-/* ---------- admin ---------- */
+/* ---------- admin (servidor com login da equipe) ---------- */
+async function api(caminho, opts){
+  const r = await fetch(WORKER_URL + caminho, Object.assign({}, opts, {headers: {"Content-Type":"application/json", "X-Sobe-Sessao": sessao}}));
+  const j = await r.json().catch(() => ({}));
+  if (r.status === 401 && j.error === "sessao"){ sairAdm("Sua sessão expirou. Entre de novo."); throw new Error("sessão expirada"); }
+  if (!r.ok) throw new Error(j.error || "erro " + r.status);
+  return j;
+}
+function mostrarAdm(){ $("#gate").style.display = sessao ? "none" : "flex"; $("#admApp").style.display = sessao ? "block" : "none"; }
+function sairAdm(msg){ sessao = ""; lsSet(LS_SESSAO, null); try { sessionStorage.removeItem(LS_SESSAO); } catch(e) {} mostrarAdm(); if (msg) $("#gErro").textContent = msg; }
+$("#gEntrar").onclick = async () => {
+  const b = $("#gEntrar"); b.disabled = true; b.textContent = "entrando…"; $("#gErro").textContent = "";
+  try {
+    const r = await fetch(WORKER_URL + "/login", {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({usuario: $("#gUser").value.trim(), senha: $("#gSenha").value, nome: $("#gNome").value.trim()})});
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) { $("#gErro").textContent = j.error || "Não consegui entrar."; $("#gSenha").value = ""; return; }
+    sessao = j.token;
+    if ($("#gLembrar").checked) lsSet(LS_SESSAO, sessao); else try { sessionStorage.setItem(LS_SESSAO, sessao); } catch(e) {}
+    $("#gSenha").value = ""; mostrarAdm(); renderAdmin();
+  } catch(e) { $("#gErro").textContent = "Sem conexão com o servidor do painel."; }
+  finally { b.disabled = false; b.textContent = "Entrar"; }
+};
+["gUser","gSenha","gNome"].forEach(id => $("#"+id).addEventListener("keydown", e => { if (e.key === "Enter") $("#gEntrar").click(); }));
+$("#sair").onclick = () => sairAdm("");
+
 function renderAdmin(){
+  mostrarAdm();
+  if (!sessao) return;
   const linhas = CAD.clientes.map((c,i) => `<div class="adm-row ${c.status === "arquivado" ? "arq" : ""}" data-i="${i}">
     <div class="ord"><button data-mv="-1" title="Subir">▲</button><button data-mv="1" title="Descer">▼</button></div>
-    <div><input data-f="nome" value="${esc(c.nome)}"><div class="repo">${esc(c.repo)} · ${esc(c.formato)}</div></div>
-    <div><input data-f="tipo" value="${esc(c.tipo || "")}" placeholder="tipo"><input data-f="grupo" value="${esc(c.grupo || "")}" placeholder="grupo (ex: UniBrasil)" style="margin-top:4px"></div>
+    <div><input data-f="nome" value="${esc(c.nome)}"><div class="repo">${esc(c.repo)} · ${esc(c.formato)}${(c.somar||[]).length ? " + " + c.somar.map(s => esc(s.repo)).join(", ") : ""}</div></div>
+    <div><input data-f="tipo" value="${esc(c.tipo || "")}" placeholder="tipo (ex: Captação)"></div>
     <div><select data-f="status" class="st-${c.status}">${["ativo","pausado","arquivado"].map(s => `<option ${s===c.status?"selected":""}>${s}</option>`).join("")}</select>
       <label style="display:flex;gap:6px;align-items:center;font-size:12px;margin-top:6px;color:var(--text2)"><input type="checkbox" data-f="logo" ${c.logo?"checked":""} style="width:auto"> logo.png</label></div>
     <div><textarea data-f="links" placeholder="Um link por linha: Nome | https://…">${esc((c.links || []).map(l => l.label + " | " + l.url).join("\n"))}</textarea></div>
     <div><input data-f="cor" type="color" value="${esc(c.cor || "#64748b")}" style="height:32px;padding:2px"></div>
   </div>`).join("");
-  $("#adm").innerHTML = `<div class="adm-row h"><div></div><div>Nome</div><div>Tipo / grupo</div><div>Status</div><div>Links extras</div><div>Cor</div></div>${linhas}`;
-  const sujo = JSON.stringify(CAD) !== JSON.stringify(CAD_PUB);
-  if (sujo) admMsg("Há alterações não salvas: valem só neste navegador até você clicar em “Salvar para todos”.", "");
+  $("#adm").innerHTML = `<div class="adm-row h"><div></div><div>Nome</div><div>Tipo</div><div>Status</div><div>Links extras</div><div>Cor</div></div>${linhas}`;
+  if (JSON.stringify(CAD) !== JSON.stringify(CAD_PUB)) admMsg("Há alterações não salvas: valem só neste navegador até você clicar em “Salvar para todos”.", "");
 }
 function admMsg(t, cls){ const el = $("#admMsg"); el.textContent = t; el.className = "adm-msg " + (cls || ""); }
 function guardarRascunho(){ lsSet(LS_DRAFT, JSON.stringify(CAD) === JSON.stringify(CAD_PUB) ? null : JSON.stringify(CAD)); }
-
 $("#adm").addEventListener("change", e => {
   const row = e.target.closest(".adm-row"); if (!row || row.classList.contains("h")) return;
   const c = CAD.clientes[+row.dataset.i], f = e.target.dataset.f; if (!f) return;
@@ -598,7 +671,7 @@ $("#addCli").onclick = () => {
   if (CAD.clientes.some(c => c.repo === repo)) return admMsg("Esse repo já está no cadastro.", "err");
   CAD.clientes.push({repo, nome: repo.replace(/^sobe_/,"").replace(/_/g," ").replace(/\b\w/g, l => l.toUpperCase()), grupo:"", tipo:"Captação", status:"ativo", formato: $("#novoFmt").value, cor:"#64748b", logo:true, links:[]});
   $("#novoRepo").value = ""; guardarRascunho(); renderTudo();
-  admMsg("Cliente adicionado. Os números aparecem depois de salvar e a coleta rodar (até ~2 min).", "ok");
+  admMsg("Cliente adicionado. Os números aparecem depois de salvar e a coleta rodar (~2 min).", "ok");
 };
 $("#descartar").onclick = () => { CAD = JSON.parse(JSON.stringify(CAD_PUB)); lsSet(LS_DRAFT, null); renderTudo(); admMsg("Alterações descartadas.", "ok"); };
 $("#baixar").onclick = () => {
@@ -606,43 +679,35 @@ $("#baixar").onclick = () => {
   a.href = URL.createObjectURL(new Blob([JSON.stringify(CAD, null, 2) + "\n"], {type:"application/json"}));
   a.download = "clientes.json"; a.click(); URL.revokeObjectURL(a.href);
 };
-$("#token").value = lsGet(LS_TOKEN) || "";
-$("#token").addEventListener("change", e => lsSet(LS_TOKEN, e.target.value.trim() || null));
-
-async function gh(path, opts){
-  const token = $("#token").value.trim();
-  const r = await fetch("https://api.github.com/repos/" + REPO_PAINEL + path, Object.assign({}, opts, {
-    headers: {"Accept":"application/vnd.github+json", "Authorization":"Bearer " + token, "Content-Type":"application/json"}}));
-  if (!r.ok && r.status !== 204) { let j = {}; try { j = await r.json(); } catch(e) {} throw new Error(r.status + " " + (j.message || "")); }
-  return r.status === 204 ? {} : r.json();
-}
 $("#salvar").onclick = async () => {
-  if (!$("#token").value.trim()) return admMsg("Cole o token do GitHub primeiro (veja “Como criar o token”).", "err");
-  lsSet(LS_TOKEN, $("#token").value.trim());
   admMsg("Salvando…", "");
   try {
-    const atual = await gh("/contents/clientes.json");
-    const txt = JSON.stringify(CAD, null, 2) + "\n";
-    const b64 = btoa(String.fromCharCode(...new TextEncoder().encode(txt)));
-    await gh("/contents/clientes.json", {method:"PUT", body: JSON.stringify({message:"Painel: atualiza cadastro de clientes", content:b64, sha:atual.sha})});
+    const r = await api("/clientes", {method:"PUT", body: JSON.stringify({cadastro: CAD})});
     CAD_PUB = JSON.parse(JSON.stringify(CAD)); lsSet(LS_DRAFT, null);
-    let extra = "";
-    try { await gh("/actions/workflows/coletar.yml/dispatches", {method:"POST", body: JSON.stringify({ref:"main"})}); extra = " Coleta disparada: os números atualizam em ~2 min."; }
-    catch(e) { extra = " (A coleta roda sozinha na próxima hora.)"; }
-    admMsg("Salvo para todos." + extra, "ok");
+    admMsg("Salvo para todos. Coleta " + (r.coleta || "agendada") + ": os números atualizam em ~2 min.", "ok");
     renderTudo();
-  } catch(e) { admMsg("Não consegui salvar: " + e.message + ". Confira o token e as permissões.", "err"); }
+  } catch(e) { admMsg("Não consegui salvar: " + e.message, "err"); }
+};
+$("#coletarJa").onclick = async () => {
+  admMsg("Disparando a coleta…", "");
+  try { const r = await api("/coletar", {method:"POST"}); admMsg("Coleta " + r.coleta + ". Recarregue o painel em ~2 min.", "ok"); }
+  catch(e) { admMsg("Não consegui disparar: " + e.message, "err"); }
 };
 
-/* ---------- navegação e tema ---------- */
+/* ---------- navegação, período e tema ---------- */
 function irPara(p){
   if (!document.getElementById("p-" + p)) p = "geral";
   document.querySelectorAll(".tab").forEach(t => t.classList.toggle("on", t.dataset.p === p));
   document.querySelectorAll(".page").forEach(s => s.classList.toggle("on", s.id === "p-" + p));
+  $("#pbar").style.display = ["geral","tabela","meses"].includes(p) ? "" : "none";
+  $("#segPer").style.display = p === "meses" ? "none" : "";
+  $("#pinfo").style.display = p === "meses" ? "none" : "";
   if (location.hash.slice(1) !== p) history.replaceState(null, "", "#" + p);
 }
 $("#tabs").onclick = e => { const t = e.target.closest(".tab"); if (t) irPara(t.dataset.p); };
 addEventListener("hashchange", () => irPara(location.hash.slice(1)));
+$("#segPer").onclick = e => { const b = e.target.closest("button"); if (b){ periodo = b.dataset.v; lsSet(LS_PER, periodo); renderTudo(); } };
+$("#segPlat").onclick = e => { const b = e.target.closest("button"); if (b){ plat = b.dataset.v; renderTudo(); } };
 $("#chips").onclick = e => { const b = e.target.closest(".chip"); if (b){ filtroTipo = b.dataset.t; renderGrid(); } };
 $("#busca").oninput = renderGrid; $("#ordem").onchange = renderGrid;
 $("#recarregar").onclick = () => carregar();
@@ -653,7 +718,7 @@ $("#tema").onclick = () => {
   const t = escuro ? "light" : "dark"; aplicarTema(t); lsSet(LS_THEME, t);
 };
 
-function renderTudo(){ renderKpis(); renderGrid(); renderUni(); renderMeses(); renderTools(); renderEx(); renderAdmin(); }
+function renderTudo(){ renderBarra(); renderKpis(); renderGrid(); renderTabela(); renderMeses(); renderTools(); renderEx(); renderAdmin(); }
 
 irPara(location.hash.slice(1) || "geral");
 carregar().catch(e => { $("#coleta").textContent = "erro ao carregar"; $("#grid").innerHTML = `<div class="empty">Não consegui carregar os dados (${esc(e.message)}).</div>`; });

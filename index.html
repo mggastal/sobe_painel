@@ -1,1 +1,663 @@
- 
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Painel Sobé</title>
+<link rel="icon" type="image/png" href="sobe.png">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  color-scheme:light;
+  --bg:#f4f5f7;--card:#ffffff;--card2:#f8f9fb;--border:#e4e6eb;--border2:#d3d6dd;
+  --text:#111318;--text2:#4b5160;--muted:#80869a;
+  --meta:#2a78d6;--google:#eb6834;--spark:#5b6475;
+  --ok:#15803d;--ok-bg:#e8f6ed;--warn:#b45309;--warn-bg:#fdf3e2;--crit:#b91c1c;--crit-bg:#fdecec;
+  --up:#15803d;--down:#b91c1c;
+  --head:#0f1420;--head-text:#ffffff;
+  --shadow:0 1px 2px rgba(16,20,30,.05),0 2px 8px rgba(16,20,30,.04);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#0e1015;--card:#171a21;--card2:#1d212a;--border:#272b35;--border2:#343946;
+    --text:#eef0f4;--text2:#b4b9c6;--muted:#8a90a0;
+    --meta:#3987e5;--google:#d95926;--spark:#9aa3b5;
+    --ok:#4ade80;--ok-bg:#14291c;--warn:#fbbf24;--warn-bg:#2d2412;--crit:#f87171;--crit-bg:#2f1616;
+    --up:#4ade80;--down:#f87171;
+    --head:#090b10;--shadow:none;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0e1015;--card:#171a21;--card2:#1d212a;--border:#272b35;--border2:#343946;
+  --text:#eef0f4;--text2:#b4b9c6;--muted:#8a90a0;
+  --meta:#3987e5;--google:#d95926;--spark:#9aa3b5;
+  --ok:#4ade80;--ok-bg:#14291c;--warn:#fbbf24;--warn-bg:#2d2412;--crit:#f87171;--crit-bg:#2f1616;
+  --up:#4ade80;--down:#f87171;
+  --head:#090b10;--shadow:none;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',system-ui,sans-serif;font-size:14px;line-height:1.4;min-height:100vh}
+a{color:inherit}
+button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit}
+
+/* topo */
+.top{background:var(--head);color:var(--head-text);padding:0 24px}
+.top-in{max-width:1320px;margin:0 auto;display:flex;align-items:center;gap:16px;min-height:64px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none}
+.brand img{height:34px;width:auto;filter:brightness(0) invert(1)}
+.brand b{font-size:17px;font-weight:700;letter-spacing:-.2px}
+.brand span{font-size:12px;color:rgba(255,255,255,.5);font-weight:500}
+.top-r{margin-left:auto;display:flex;align-items:center;gap:10px;font-size:12px;color:rgba(255,255,255,.6)}
+.tbtn{padding:6px 11px;border-radius:8px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.06);color:rgba(255,255,255,.8);cursor:pointer;font-size:12px;font-weight:600}
+.tbtn:hover{background:rgba(255,255,255,.12)}
+.tabs{max-width:1320px;margin:0 auto;display:flex;gap:2px;overflow-x:auto}
+.tab{padding:11px 14px;border:0;background:none;color:rgba(255,255,255,.55);font-weight:600;font-size:13px;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap}
+.tab:hover{color:#fff}
+.tab.on{color:#fff;border-bottom-color:#fff}
+.tab .cnt{font-size:11px;opacity:.6;margin-left:4px}
+
+.wrap{max-width:1320px;margin:0 auto;padding:22px 24px 40px}
+.page{display:none}.page.on{display:block}
+h2{font-size:18px;font-weight:700;letter-spacing:-.2px}
+.sub{color:var(--muted);font-size:12.5px;margin-top:2px}
+.sec-h{display:flex;align-items:flex-end;gap:12px;margin:26px 0 12px;flex-wrap:wrap}
+.sec-h:first-child{margin-top:0}
+
+/* KPIs */
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;box-shadow:var(--shadow)}
+.kpi-l{font-size:11.5px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.kpi-v{font-size:24px;font-weight:700;margin-top:6px;font-variant-numeric:tabular-nums;letter-spacing:-.4px}
+.kpi-s{font-size:12px;color:var(--text2);margin-top:3px}
+.d-up{color:var(--up);font-weight:600}.d-down{color:var(--down);font-weight:600}.d-0{color:var(--muted)}
+
+/* filtros */
+.filters{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:22px 0 14px}
+.search{flex:0 1 240px;min-width:160px;padding:8px 12px;border:1px solid var(--border2);border-radius:9px;background:var(--card)}
+.chip{padding:6px 11px;border-radius:999px;border:1px solid var(--border2);background:var(--card);cursor:pointer;font-size:12.5px;font-weight:600;color:var(--text2)}
+.chip.on{background:var(--text);color:var(--card);border-color:var(--text)}
+.sel{padding:7px 10px;border:1px solid var(--border2);border-radius:9px;background:var(--card);font-size:12.5px}
+.f-r{margin-left:auto;display:flex;gap:8px;align-items:center;font-size:12px;color:var(--muted)}
+
+/* cards de cliente */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:12px;box-shadow:var(--shadow);min-width:0}
+.c-h{display:flex;gap:11px;align-items:center;min-width:0}
+.logo{width:40px;height:40px;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;overflow:hidden;background:var(--c,#64748b)}
+.logo.img{background:var(--head);padding:5px}
+.logo img{max-width:100%;max-height:100%;object-fit:contain}
+.c-n{min-width:0;flex:1}
+.c-n b{display:block;font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.c-n span{font-size:12px;color:var(--muted)}
+.pill{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:600;padding:3px 8px;border-radius:999px;white-space:nowrap}
+.pill.ok{color:var(--ok);background:var(--ok-bg)}
+.pill.warn{color:var(--warn);background:var(--warn-bg)}
+.pill.crit{color:var(--crit);background:var(--crit-bg)}
+.pill.neu{color:var(--text2);background:var(--card2);border:1px solid var(--border)}
+.c-m{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.m-l{font-size:11px;color:var(--muted);font-weight:600}
+.m-v{font-size:16.5px;font-weight:700;font-variant-numeric:tabular-nums;margin-top:1px;white-space:nowrap}
+.m-s{font-size:11.5px;margin-top:1px}
+.lct{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:10px 12px}
+.lct-t{font-size:11.5px;color:var(--muted);font-weight:600;margin-bottom:6px}
+.lct-t b{color:var(--text);font-weight:700}
+.lct .c-m{grid-template-columns:repeat(auto-fill,minmax(96px,1fr));row-gap:10px}
+.lct .m-v{font-size:15px}
+.spark{position:relative;height:46px}
+.spark svg{display:block;width:100%;height:46px;overflow:visible}
+.spark-l{display:flex;justify-content:space-between;font-size:10.5px;color:var(--muted);margin-top:2px}
+.tip{position:fixed;pointer-events:none;background:var(--text);color:var(--card);font-size:12px;padding:6px 9px;border-radius:7px;z-index:50;white-space:nowrap;display:none;font-variant-numeric:tabular-nums;box-shadow:0 4px 14px rgba(0,0,0,.18)}
+.tip b{font-weight:700}
+.c-links{display:flex;gap:6px;flex-wrap:wrap;margin-top:auto}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:9px;font-size:12.5px;font-weight:600;text-decoration:none;border:1px solid var(--border2);background:var(--card);cursor:pointer}
+.btn:hover{border-color:var(--text2)}
+.btn.pri{background:var(--text);color:var(--card);border-color:var(--text)}
+.btn.pri:hover{opacity:.88}
+.btn.sm{padding:5px 9px;font-size:12px}
+.wf{font-size:11.5px;color:var(--muted)}
+.wf a{color:var(--muted)}
+.empty{padding:40px;text-align:center;color:var(--muted);background:var(--card);border:1px dashed var(--border2);border-radius:14px}
+
+/* tabelas */
+.tbl-w{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow-x:auto;box-shadow:var(--shadow)}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th,td{padding:9px 12px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--border);font-variant-numeric:tabular-nums}
+th{font-size:11.5px;color:var(--muted);font-weight:600;background:var(--card2);position:sticky;top:0}
+th:first-child,td:first-child{text-align:left;position:sticky;left:0;background:inherit}
+td:first-child{background:var(--card);font-weight:600}
+tr:last-child td{border-bottom:0}
+tfoot td{font-weight:700;background:var(--card2)!important}
+td.z{color:var(--muted)}
+
+/* UniBrasil */
+.uni{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.panel{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;box-shadow:var(--shadow);min-width:0}
+.legend{display:flex;gap:14px;font-size:12px;color:var(--text2);margin:10px 0 4px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.bars svg{display:block;width:100%;height:190px;overflow:visible}
+
+/* ferramentas */
+.tools{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.tool{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;text-decoration:none;display:block;box-shadow:var(--shadow)}
+.tool:hover{border-color:var(--text2)}
+.tool b{font-size:15px}.tool p{color:var(--muted);font-size:12.5px;margin-top:4px}
+
+/* admin */
+.adm-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:14px}
+.adm-bar input{padding:7px 10px;border:1px solid var(--border2);border-radius:8px;background:var(--card2);min-width:240px;flex:1}
+.adm-msg{font-size:12.5px;color:var(--muted);width:100%}
+.adm-msg.ok{color:var(--ok)}.adm-msg.err{color:var(--crit)}
+.adm-row{display:grid;grid-template-columns:28px minmax(150px,1.3fr) minmax(130px,1fr) 150px minmax(160px,1.6fr) 64px;gap:10px;align-items:start;padding:10px 12px;border-bottom:1px solid var(--border)}
+.adm-row:last-child{border-bottom:0}
+.adm-row.h{font-size:11.5px;color:var(--muted);font-weight:600;background:var(--card2);border-radius:12px 12px 0 0}
+.adm-row input,.adm-row select,.adm-row textarea{width:100%;padding:6px 8px;border:1px solid var(--border2);border-radius:7px;background:var(--card);font-size:12.5px}
+.adm-row textarea{min-height:34px;resize:vertical;font-size:12px}
+.adm-row .repo{font-size:11px;color:var(--muted);margin-top:3px}
+.adm-row.arq{opacity:.55}
+.ord{display:flex;flex-direction:column;gap:2px}
+.ord button{border:1px solid var(--border2);background:var(--card);border-radius:5px;cursor:pointer;font-size:10px;line-height:1;padding:3px 0}
+.st-ativo{color:var(--ok)}.st-pausado{color:var(--warn)}.st-arquivado{color:var(--muted)}
+details.help{margin-top:14px;font-size:12.5px;color:var(--text2);background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 14px}
+details.help summary{cursor:pointer;font-weight:600}
+details.help ol{margin:8px 0 0 18px}details.help li{margin:3px 0}
+
+.foot{display:flex;justify-content:center;align-items:center;gap:8px;font-size:11.5px;color:var(--muted);padding:26px 0 8px}
+.foot img{height:30px;opacity:.8}
+[data-theme="dark"] .foot img{filter:brightness(0) invert(1)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .foot img{filter:brightness(0) invert(1)}}
+
+@media (max-width:900px){
+  .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .uni{grid-template-columns:1fr}
+  .adm-row{grid-template-columns:28px 1fr 1fr}
+  .adm-row.h{display:none}
+}
+@media (max-width:560px){
+  .top,.wrap{padding-left:16px;padding-right:16px}
+  .brand span{display:none}
+  .kpi-v{font-size:20px}
+  .grid{grid-template-columns:1fr}
+  .f-r{margin-left:0;width:100%}
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-in">
+    <a class="brand" href="#geral"><img src="sobe.png" alt="Sobé"><b>Painel Sobé</b><span>visão gerencial da agência</span></a>
+    <div class="top-r"><span id="coleta">carregando…</span><button class="tbtn" id="recarregar" title="Buscar os dados mais recentes">↻</button><button class="tbtn" id="tema">◐ Tema</button></div>
+  </div>
+  <nav class="tabs" id="tabs">
+    <button class="tab on" data-p="geral">Visão geral</button>
+    <button class="tab" data-p="unibrasil">UniBrasil</button>
+    <button class="tab" data-p="meses">Investimento por mês</button>
+    <button class="tab" data-p="ferramentas">Ferramentas</button>
+    <button class="tab" data-p="ex">Ex-clientes<span class="cnt" id="cntEx"></span></button>
+    <button class="tab" data-p="admin">⚙ Admin</button>
+  </nav>
+</header>
+
+<main class="wrap">
+  <section class="page on" id="p-geral">
+    <div class="kpis" id="kpis"></div>
+    <div class="filters">
+      <input class="search" id="busca" placeholder="Buscar cliente…">
+      <div id="chips" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+      <div class="f-r">Ordenar
+        <select class="sel" id="ordem">
+          <option value="manual">Ordem do cadastro</option>
+          <option value="invest">Maior investimento 7d</option>
+          <option value="alerta">Alertas primeiro</option>
+          <option value="nome">Nome</option>
+        </select>
+      </div>
+    </div>
+    <div class="grid" id="grid"></div>
+  </section>
+
+  <section class="page" id="p-unibrasil">
+    <div class="sec-h"><div><h2>UniBrasil</h2><div class="sub">Graduação e Mestrado &amp; Doutorado · Meta + Google · investimento mensal</div></div></div>
+    <div class="kpis" id="uniKpis"></div>
+    <div class="uni" id="uni" style="margin-top:14px"></div>
+  </section>
+
+  <section class="page" id="p-meses">
+    <div class="sec-h"><div><h2>Investimento por mês</h2><div class="sub">Clientes ativos e pausados com dados diários. Lançamentos com resumo só aparecem na visão geral.</div></div></div>
+    <div class="tbl-w" id="meses"></div>
+  </section>
+
+  <section class="page" id="p-ferramentas">
+    <div class="sec-h"><div><h2>Ferramentas da agência</h2><div class="sub">Links fixos, editáveis em clientes.json</div></div></div>
+    <div class="tools" id="tools"></div>
+  </section>
+
+  <section class="page" id="p-ex">
+    <div class="sec-h"><div><h2>Ex-clientes</h2><div class="sub">Clientes arquivados no Admin. O dash continua no ar com os dados finais.</div></div></div>
+    <div class="grid" id="exGrid"></div>
+  </section>
+
+  <section class="page" id="p-admin">
+    <div class="sec-h"><div><h2>Admin · clientes</h2><div class="sub">Escolha quem aparece no painel. Ativo = visão geral · Pausado = aparece com selo · Arquivado = vai para Ex-clientes.</div></div></div>
+    <div class="adm-bar">
+      <input type="password" id="token" placeholder="Token do GitHub (fica salvo só neste navegador)">
+      <button class="btn pri" id="salvar">Salvar para todos</button>
+      <button class="btn" id="baixar">Baixar clientes.json</button>
+      <button class="btn" id="descartar">Descartar alterações</button>
+      <div class="adm-msg" id="admMsg">As mudanças já valem neste navegador. “Salvar para todos” grava no repositório sobe_painel.</div>
+    </div>
+    <div class="tbl-w" id="adm"></div>
+    <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+      <input class="search" id="novoRepo" placeholder="repo novo, ex: sobe_cliente">
+      <select class="sel" id="novoFmt">
+        <option value="template">template (perpétuo/captação)</option>
+        <option value="resumo">resumo (lançamento)</option>
+        <option value="embed">embed (dados no HTML)</option>
+        <option value="unibrasil">unibrasil</option>
+        <option value="cidades">cidades</option>
+      </select>
+      <button class="btn" id="addCli">+ Adicionar cliente</button>
+    </div>
+    <details class="help"><summary>Como criar o token (uma vez só)</summary>
+      <ol>
+        <li>GitHub → Settings → Developer settings → <b>Fine-grained tokens</b> → Generate new token.</li>
+        <li>Repository access: <b>Only select repositories → sobe_painel</b>.</li>
+        <li>Permissions: <b>Contents: Read and write</b> e <b>Actions: Read and write</b> (para disparar a coleta na hora).</li>
+        <li>Cole o token aqui. Ele fica só no seu navegador e não dá acesso a nenhum repo de cliente.</li>
+      </ol>
+    </details>
+  </section>
+
+  <footer class="foot">Desenvolvido por <img src="sobe.png" alt="Sobé Estratégias"></footer>
+</main>
+<div class="tip" id="tip"></div>
+
+<script>
+const REPO_PAINEL = "mggastal/sobe_painel";
+const PAGES = "https://mggastal.github.io";
+const LS_DRAFT = "sobe_painel_rascunho", LS_TOKEN = "sobe_painel_token", LS_THEME = "sobe_painel_tema";
+
+let CAD = null;          // cadastro em uso (rascunho local ou o publicado)
+let CAD_PUB = null;      // cadastro publicado
+let CAD_SHA = null;
+let ST = {clientes:{}};  // status.json
+let LIVE = {};           // data.json de resumo lidos ao vivo
+let filtroTipo = "Todos";
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const lsGet = k => { try { return localStorage.getItem(k); } catch(e) { return null; } };
+const lsSet = (k,v) => { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch(e) {} };
+
+/* ---------- formatação ---------- */
+const nf0 = new Intl.NumberFormat("pt-BR",{maximumFractionDigits:0});
+const nf2 = new Intl.NumberFormat("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2});
+const brl = (v,m) => (m||"R$") + " " + (Math.abs(v) >= 10000 ? nf0.format(v) : nf2.format(v));
+const brlK = (v,m) => (m||"R$") + " " + (v >= 1e6 ? nf2.format(v/1e6)+" mi" : v >= 1e4 ? nf0.format(v/1e3)+" mil" : nf0.format(v));
+const int = v => nf0.format(Math.round(v));
+const dm = iso => iso ? iso.slice(8,10) + "/" + iso.slice(5,7) : "";
+const MES = ["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];
+const mesLbl = ym => MES[+ym.slice(5,7)-1] + "/" + ym.slice(2,4);
+function hojeBRT(){ const d = new Date(Date.now() - 3*3600e3); return d.toISOString().slice(0,10); }
+function addDias(iso, n){ const d = new Date(iso + "T12:00:00Z"); d.setUTCDate(d.getUTCDate()+n); return d.toISOString().slice(0,10); }
+function ha(dateLike){
+  const t = new Date(dateLike).getTime(); if (isNaN(t)) return "";
+  const min = Math.round((Date.now()-t)/60000);
+  if (min < 1) return "agora"; if (min < 60) return "há " + min + " min";
+  if (min < 1440) return "há " + Math.round(min/60) + "h";
+  const d = Math.round(min/1440); return "há " + d + (d === 1 ? " dia" : " dias");
+}
+function delta(a, b){
+  if (!b) return a ? '<span class="d-0">novo</span>' : '<span class="d-0">—</span>';
+  const p = (a-b)/b*100, r = Math.round(p);
+  if (r === 0) return '<span class="d-0">0%</span>';
+  return `<span class="${p>0?'d-up':'d-down'}">${p>0?'▲':'▼'} ${Math.abs(r)}%</span>`;
+}
+
+/* ---------- carregamento ---------- */
+async function getJSON(url){ const r = await fetch(url + (url.includes("?")?"&":"?") + "t=" + Date.now(), {cache:"no-store"}); if (!r.ok) throw new Error(r.status); return r.json(); }
+
+async function carregar(){
+  $("#coleta").textContent = "carregando…";
+  const [cad, st] = await Promise.all([getJSON("clientes.json"), getJSON("status.json").catch(() => ({clientes:{}}))]);
+  CAD_PUB = cad; ST = st;
+  const draft = lsGet(LS_DRAFT);
+  CAD = draft ? JSON.parse(draft) : JSON.parse(JSON.stringify(cad));
+  $("#coleta").textContent = ST.gerado_em ? "dados coletados " + ha(ST.gerado_em) : "sem coleta ainda";
+  $("#coleta").title = ST.gerado_em ? new Date(ST.gerado_em).toLocaleString("pt-BR") : "";
+  renderTudo();
+  // resumos de lançamento são pequenos: lê ao vivo direto do dash
+  await Promise.all(CAD.clientes.filter(c => c.formato === "resumo" && c.status !== "arquivado").map(async c => {
+    try { LIVE[c.repo] = await getJSON(`${PAGES}/${c.repo}/data.json`); } catch(e) {}
+  }));
+  renderTudo();
+}
+
+/* ---------- métricas ---------- */
+function metr(c){
+  const s = ST.clientes[c.repo] || {};
+  const m = {s, moeda: s.moeda || "R$"};
+  if (s.serie){
+    const dias = s.serie.dias, hoje = hojeBRT(), ontem = addDias(hoje,-1);
+    const soma = (de, ate) => { let sp=0, cv=0; s.plataformas.forEach(p => s.serie[p].forEach((v,i) => { if (dias[i] >= de && dias[i] <= ate){ sp += v[0]; cv += v[1]; } })); return [sp,cv]; };
+    m.d7 = soma(addDias(ontem,-6), ontem);
+    m.p7 = soma(addDias(ontem,-13), addDias(ontem,-7));
+    m.mtd = soma(hoje.slice(0,8)+"01", hoje);
+    m.mtdAnt = soma(addDias(hoje.slice(0,8)+"01",-1).slice(0,8)+"01", addDias(addDias(hoje.slice(0,8)+"01",-1).slice(0,8)+"01", +(+hoje.slice(8,10))-1));
+    const ini = addDias(hoje,-29);
+    m.spark = dias.map((d,i) => [d, s.plataformas.reduce((a,p) => a + s.serie[p][i][0], 0)]).filter(x => x[0] >= ini && x[0] <= hoje);
+    m.ultimo = s.ultimo_dia;
+  }
+  const live = LIVE[c.repo];
+  if (c.formato === "resumo"){
+    m.lct = live ? {cod: live.lancamento, kpis: live.kpis || {}, gerado: live.atualizado} : (s.lancamento ? {...s.lancamento, gerado: s.gerado} : null);
+  } else if (s.lancamento && s.lancamento.cod){ m.lctCod = s.lancamento.cod; }
+  m.saude = saude(c, m);
+  return m;
+}
+
+function saude(c, m){
+  const s = m.s;
+  if (c.status === "arquivado") return {cls:"neu", txt:"Arquivado", n:0};
+  if (!s || s.ok === undefined) return {cls:"neu", txt:"Aguardando coleta", n:1};
+  if (s.ok === false) return {cls:"crit", txt:"Dados ilegíveis", n:3, det:s.erro};
+  const wf = s.workflow || {};
+  if (wf.conclusao === "failure") return {cls:"crit", txt:"Atualização falhou", n:3};
+  const horas = wf.quando ? (Date.now() - new Date(wf.quando))/36e5 : null;
+  if (horas !== null && horas > 30) return {cls:"warn", txt:"Sem atualizar " + ha(wf.quando), n:2};
+  if (c.status === "pausado") return {cls:"neu", txt:"Pausado", n:0};
+  if (m.ultimo && m.ultimo < addDias(hojeBRT(), -3)) return {cls:"warn", txt:"Sem investimento desde " + dm(m.ultimo), n:2};
+  return {cls:"ok", txt: wf.quando ? "Atualizado " + ha(wf.quando) : "Atualizado", n:0};
+}
+
+/* ---------- gráficos ---------- */
+function sparkSVG(pts, moeda){
+  if (!pts || !pts.length) return "";
+  const W = 300, H = 46, max = Math.max(...pts.map(p => p[1]), 1), n = pts.length;
+  const x = i => n === 1 ? W/2 : i/(n-1)*W, y = v => H - 3 - v/max*(H-8);
+  const linha = pts.map((p,i) => (i?"L":"M") + x(i).toFixed(1) + " " + y(p[1]).toFixed(1)).join(" ");
+  const area = linha + ` L${W} ${H} L0 ${H} Z`;
+  return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" data-pts='${esc(JSON.stringify(pts))}' data-moeda="${esc(moeda)}">
+    <path d="${area}" fill="var(--spark)" opacity=".1"/>
+    <path d="${linha}" fill="none" stroke="var(--spark)" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linejoin="round"/>
+    <line class="hl" x1="0" x2="0" y1="0" y2="${H}" stroke="var(--text2)" stroke-width="1" vector-effect="non-scaling-stroke" opacity="0"/>
+  </svg>`;
+}
+function barrasSVG(meses){
+  // empilhado Meta + Google por mês
+  const W = 560, H = 190, padB = 22, padT = 8, n = meses.length;
+  if (!n) return "";
+  const tot = meses.map(m => m.meta + m.google), max = Math.max(...tot, 1);
+  const gap = 8, bw = (W - gap*(n-1))/n, esc_ = v => v/max*(H-padB-padT);
+  let s = `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">`;
+  meses.forEach((m,i) => {
+    const x = i*(bw+gap), hM = esc_(m.meta), hG = esc_(m.google), base = H - padB;
+    const tip = esc(JSON.stringify({t: mesLbl(m.ym), meta: m.meta, google: m.google}));
+    if (hM > 0) s += `<rect x="${x}" y="${base-hM}" width="${bw}" height="${Math.max(hM - (hG>0?1:0),0)}" rx="${hG>0?0:3}" fill="var(--meta)"/>`;
+    if (hG > 0) s += `<rect x="${x}" y="${base-hM-hG}" width="${bw}" height="${Math.max(hG-1,0)}" rx="3" fill="var(--google)"/>`;
+    s += `<rect class="hit" x="${x}" y="${padT}" width="${bw}" height="${H-padB-padT}" fill="transparent" data-tip='${tip}'/>`;
+    s += `<text x="${x+bw/2}" y="${H-6}" text-anchor="middle" font-size="10.5" fill="var(--muted)">${mesLbl(m.ym)}</text>`;
+  });
+  s += `<line x1="0" x2="${W}" y1="${H-padB}" y2="${H-padB}" stroke="var(--border2)" vector-effect="non-scaling-stroke"/></svg>`;
+  return s;
+}
+
+/* tooltip */
+const tip = $("#tip");
+function showTip(e, html){ tip.innerHTML = html; tip.style.display = "block";
+  const r = tip.getBoundingClientRect(); let x = e.clientX + 12, y = e.clientY - r.height - 10;
+  if (x + r.width > innerWidth - 8) x = e.clientX - r.width - 12; if (y < 8) y = e.clientY + 14;
+  tip.style.left = x + "px"; tip.style.top = y + "px"; }
+function hideTip(){ tip.style.display = "none"; }
+document.addEventListener("mousemove", e => {
+  const svg = e.target.closest && e.target.closest(".spark svg");
+  document.querySelectorAll(".spark .hl").forEach(l => { if (!svg || !svg.contains(l)) l.setAttribute("opacity", 0); });
+  if (svg){
+    const pts = JSON.parse(svg.dataset.pts), r = svg.getBoundingClientRect();
+    const i = Math.max(0, Math.min(pts.length-1, Math.round((e.clientX - r.left)/r.width*(pts.length-1))));
+    const hl = svg.querySelector(".hl"), xv = pts.length === 1 ? 150 : i/(pts.length-1)*300;
+    hl.setAttribute("x1", xv); hl.setAttribute("x2", xv); hl.setAttribute("opacity", .6);
+    return showTip(e, `${dm(pts[i][0])} · <b>${brl(pts[i][1], svg.dataset.moeda)}</b>`);
+  }
+  const hit = e.target.closest && e.target.closest("rect.hit");
+  if (hit){ const d = JSON.parse(hit.dataset.tip);
+    return showTip(e, `<b>${d.t}</b><br>Meta ${brl(d.meta)}<br>Google ${brl(d.google)}<br>Total <b>${brl(d.meta+d.google)}</b>`); }
+  hideTip();
+});
+
+/* ---------- render ---------- */
+function logoHTML(c){
+  const letra = esc((c.nome || c.repo).replace(/^Dra?\.? /,"").slice(0,2).toUpperCase());
+  if (c.logo) return `<div class="logo img"><img src="${PAGES}/${c.repo}/logo.png" alt="" onerror="this.parentNode.classList.remove('img');this.parentNode.style.setProperty('--c','${esc(c.cor)}');this.replaceWith('${letra}')"></div>`;
+  return `<div class="logo" style="--c:${esc(c.cor || '#64748b')}">${letra}</div>`;
+}
+function linksHTML(c){
+  return `<div class="c-links"><a class="btn pri sm" href="${PAGES}/${c.repo}/" target="_blank" rel="noopener">Abrir dash ↗</a>` +
+    (c.links || []).map(l => `<a class="btn sm" href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label)}</a>`).join("") + `</div>`;
+}
+function kpisLct(k, moeda){
+  const it = [["Investimento", k.spend != null ? brlK(k.spend, moeda) : null]];
+  if (k.vendas != null) it.push(["Vendas", int(k.vendas)]);
+  if (k.leads != null) it.push(["Leads", int(k.leads)]);
+  if (k.cpa != null) it.push(["CPA", brl(k.cpa, moeda)]);
+  if (k.cpl != null) it.push(["CPL", brl(k.cpl, moeda)]);
+  if (k.faturamento != null) it.push(["Faturamento", brlK(k.faturamento, moeda)]);
+  if (k.faturamento != null && k.spend) it.push(["ROAS", nf2.format(k.faturamento/k.spend) + "x"]);
+  return `<div class="c-m">${it.filter(x => x[1] != null).map(([l,v]) => `<div><div class="m-l">${l}</div><div class="m-v">${v}</div></div>`).join("")}</div>`;
+}
+function cardHTML(c){
+  const m = metr(c), sa = m.saude;
+  let corpo = "";
+  if (m.d7){
+    const cpl = m.d7[1] ? m.d7[0]/m.d7[1] : null, cplP = m.p7[1] ? m.p7[0]/m.p7[1] : null;
+    corpo += `<div class="c-m">
+      <div><div class="m-l">Invest. 7d</div><div class="m-v">${brlK(m.d7[0], m.moeda)}</div><div class="m-s">${delta(m.d7[0], m.p7[0])}</div></div>
+      <div><div class="m-l">Conversões 7d</div><div class="m-v">${m.d7[1] ? int(m.d7[1]) : "—"}</div><div class="m-s">${m.d7[1] ? delta(m.d7[1], m.p7[1]) : ""}</div></div>
+      <div><div class="m-l">Custo/conv.</div><div class="m-v">${cpl ? brl(cpl, m.moeda) : "—"}</div><div class="m-s">${cpl && cplP ? `<span class="d-0">ant. ${brl(cplP, m.moeda)}</span>` : ""}</div></div>
+    </div>
+    <div><div class="spark">${sparkSVG(m.spark, m.moeda)}</div>
+    <div class="spark-l"><span>Investimento diário · 30 dias</span><span>Mês: <b style="color:var(--text)">${brlK(m.mtd[0], m.moeda)}</b></span></div></div>`;
+  }
+  if (m.lct){
+    corpo += `<div class="lct"><div class="lct-t">${m.lct.cod ? `Lançamento <b>${esc(m.lct.cod)}</b> · ` : "Período atual do dash · "}acumulado</div>${kpisLct(m.lct.kpis || {}, m.moeda)}</div>`;
+  }
+  if (!corpo) corpo = `<div class="empty" style="padding:18px">${m.s.ok === false ? "Não consegui ler os dados deste dash." : "Sem dados coletados ainda."}</div>`;
+  const wf = (m.s && m.s.workflow) || {};
+  const badges = [c.status === "pausado" && sa.cls !== "neu" ? `<span class="pill neu">Pausado</span>` : "", m.lctCod ? `<span class="pill neu">${esc(m.lctCod)}</span>` : ""].join("");
+  return `<article class="card">
+    <div class="c-h">${logoHTML(c)}<div class="c-n"><b title="${esc(c.nome)}">${esc(c.nome)}</b><span>${esc(c.tipo || "")}</span></div></div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap"><span class="pill ${sa.cls}" title="${esc(sa.det || "")}">${sa.cls==="ok"?"●":sa.cls==="crit"?"✕":sa.cls==="warn"?"▲":"○"} ${esc(sa.txt)}</span>${badges}</div>
+    ${corpo}
+    ${linksHTML(c)}
+    ${wf.url ? `<div class="wf">Última execução: <a href="${esc(wf.url)}" target="_blank" rel="noopener">${esc(wf.nome || "Action")}</a> · ${wf.quando ? new Date(wf.quando).toLocaleString("pt-BR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}) : ""}</div>` : ""}
+  </article>`;
+}
+
+function visiveis(){ return CAD.clientes.filter(c => c.status !== "arquivado"); }
+
+function renderKpis(){
+  const vis = visiveis().map(c => [c, metr(c)]);
+  let d7 = 0, p7 = 0, mtd = 0, mtdA = 0, cv = 0, cvP = 0;
+  vis.forEach(([c,m]) => { if (m.d7){ d7 += m.d7[0]; p7 += m.p7[0]; mtd += m.mtd[0]; mtdA += m.mtdAnt[0]; cv += m.d7[1]; cvP += m.p7[1]; } });
+  const alertas = vis.filter(([c,m]) => m.saude.n >= 2);
+  const ativos = vis.filter(([c]) => c.status === "ativo").length, paus = vis.length - ativos;
+  $("#kpis").innerHTML = `
+    <div class="kpi"><div class="kpi-l">Investimento 7 dias</div><div class="kpi-v">${brl(d7)}</div><div class="kpi-s">${delta(d7,p7)} vs 7 dias anteriores</div></div>
+    <div class="kpi"><div class="kpi-l">Investimento no mês</div><div class="kpi-v">${brl(mtd)}</div><div class="kpi-s">${delta(mtd,mtdA)} vs mesmo período do mês passado</div></div>
+    <div class="kpi"><div class="kpi-l">Conversões 7 dias</div><div class="kpi-v">${int(cv)}</div><div class="kpi-s">${delta(cv,cvP)} · leads + conversões Google</div></div>
+    <div class="kpi"><div class="kpi-l">Clientes</div><div class="kpi-v">${ativos}<span style="font-size:14px;color:var(--muted);font-weight:600"> ativos${paus ? " · " + paus + " pausado" + (paus>1?"s":"") : ""}</span></div>
+      <div class="kpi-s">${alertas.length ? `<span class="d-down">${alertas.length} com alerta</span>: ${alertas.map(([c]) => esc(c.nome.split(" · ")[0])).slice(0,3).join(", ")}${alertas.length>3?"…":""}` : '<span class="d-up">todos os dashs em dia</span>'}</div></div>`;
+}
+
+function renderGrid(){
+  const tipos = ["Todos", ...new Set(visiveis().map(c => (c.tipo || "Outros").split(" · ")[0]))];
+  if (!tipos.includes(filtroTipo)) filtroTipo = "Todos";
+  $("#chips").innerHTML = tipos.map(t => `<button class="chip ${t===filtroTipo?"on":""}" data-t="${esc(t)}">${esc(t)}</button>`).join("");
+  const q = $("#busca").value.trim().toLowerCase(), ord = $("#ordem").value;
+  let lst = visiveis().filter(c => (filtroTipo === "Todos" || (c.tipo || "Outros").split(" · ")[0] === filtroTipo) && (!q || (c.nome + " " + c.repo).toLowerCase().includes(q)));
+  const M = new Map(lst.map(c => [c.repo, metr(c)]));
+  if (ord === "invest") lst.sort((a,b) => ((M.get(b.repo).d7||[0])[0]) - ((M.get(a.repo).d7||[0])[0]));
+  if (ord === "alerta") lst.sort((a,b) => M.get(b.repo).saude.n - M.get(a.repo).saude.n);
+  if (ord === "nome") lst.sort((a,b) => a.nome.localeCompare(b.nome, "pt-BR"));
+  $("#grid").innerHTML = lst.length ? lst.map(cardHTML).join("") : `<div class="empty">Nenhum cliente com esse filtro.</div>`;
+}
+
+function renderUni(){
+  const us = CAD.clientes.filter(c => c.grupo === "UniBrasil" && c.status !== "arquivado");
+  const tab = document.querySelector('.tab[data-p="unibrasil"]'); tab.style.display = us.length ? "" : "none";
+  if (!us.length) return;
+  let mtd = 0, mtdA = 0, d7 = 0, p7 = 0, cv = 0;
+  const paineis = us.map(c => {
+    const m = metr(c), s = m.s;
+    if (m.d7){ mtd += m.mtd[0]; mtdA += m.mtdAnt[0]; d7 += m.d7[0]; p7 += m.p7[0]; cv += m.mtd[1]; }
+    // eixo fixo: os 12 meses até o atual
+    const ymHoje = hojeBRT().slice(0,7), mp = s.meses_plat || {};
+    const meses = Array.from({length:12}, (_,k) => { const d = new Date(Date.UTC(+ymHoje.slice(0,4), +ymHoje.slice(5,7)-1-(11-k), 1)); return d.toISOString().slice(0,7); })
+      .map(ym => ({ym, meta: (mp.meta||{})[ym] || 0, google: (mp.google||{})[ym] || 0}));
+    return `<div class="panel">
+      <div class="c-h">${logoHTML(c)}<div class="c-n"><b>${esc(c.nome)}</b><span><span class="pill ${m.saude.cls}">${esc(m.saude.txt)}</span></span></div></div>
+      <div class="c-m" style="margin-top:14px">
+        <div><div class="m-l">Mês atual</div><div class="m-v">${m.mtd ? brlK(m.mtd[0]) : "—"}</div><div class="m-s">${m.mtd ? delta(m.mtd[0], m.mtdAnt[0]) : ""}</div></div>
+        <div><div class="m-l">Conversões no mês</div><div class="m-v">${m.mtd ? int(m.mtd[1]) : "—"}</div></div>
+        <div><div class="m-l">Custo/conv. mês</div><div class="m-v">${m.mtd && m.mtd[1] ? brl(m.mtd[0]/m.mtd[1]) : "—"}</div></div>
+      </div>
+      <div class="legend"><span><i style="background:var(--meta)"></i>Meta</span><span><i style="background:var(--google)"></i>Google</span></div>
+      <div class="bars">${barrasSVG(meses)}</div>
+      <div style="margin-top:12px">${linksHTML(c)}</div>
+    </div>`;
+  });
+  $("#uniKpis").innerHTML = `
+    <div class="kpi"><div class="kpi-l">Investimento no mês</div><div class="kpi-v">${brl(mtd)}</div><div class="kpi-s">${delta(mtd,mtdA)} vs mesmo período do mês passado</div></div>
+    <div class="kpi"><div class="kpi-l">Investimento 7 dias</div><div class="kpi-v">${brl(d7)}</div><div class="kpi-s">${delta(d7,p7)} vs 7 dias anteriores</div></div>
+    <div class="kpi"><div class="kpi-l">Conversões no mês</div><div class="kpi-v">${int(cv)}</div><div class="kpi-s">leads Meta + conversões Google</div></div>
+    <div class="kpi"><div class="kpi-l">Custo/conv. no mês</div><div class="kpi-v">${cv ? brl(mtd/cv) : "—"}</div><div class="kpi-s">as duas unidades</div></div>`;
+  $("#uni").innerHTML = paineis.join("");
+}
+
+function renderMeses(){
+  const lst = visiveis().filter(c => (ST.clientes[c.repo] || {}).meses);
+  const yms = [...new Set(lst.flatMap(c => ST.clientes[c.repo].meses.map(m => m[0])))].sort().slice(-6);
+  if (!lst.length){ $("#meses").innerHTML = '<div class="empty">Sem dados mensais.</div>'; return; }
+  const tot = yms.map(() => 0);
+  const linhas = lst.map(c => {
+    const mp = Object.fromEntries(ST.clientes[c.repo].meses.map(m => [m[0], m[1]]));
+    return `<tr><td>${esc(c.nome)}</td>${yms.map((ym,i) => { const v = mp[ym] || 0; tot[i] += v; return `<td class="${v?"":"z"}">${v ? brl(v) : "—"}</td>`; }).join("")}</tr>`;
+  });
+  $("#meses").innerHTML = `<table><thead><tr><th>Cliente</th>${yms.map(ym => `<th>${mesLbl(ym)}${ym === hojeBRT().slice(0,7) ? " (parcial)" : ""}</th>`).join("")}</tr></thead>
+    <tbody>${linhas.join("")}</tbody><tfoot><tr><td>Total</td>${tot.map(v => `<td>${brl(v)}</td>`).join("")}</tr></tfoot></table>`;
+}
+
+function renderTools(){
+  $("#tools").innerHTML = (CAD.ferramentas || []).map(f => `<a class="tool" href="${esc(f.url)}" target="_blank" rel="noopener"><b>${esc(f.nome)} ↗</b><p>${esc(f.descricao || "")}</p></a>`).join("");
+}
+
+function renderEx(){
+  const ex = CAD.clientes.filter(c => c.status === "arquivado");
+  $("#cntEx").textContent = ex.length ? ex.length : "";
+  $("#exGrid").innerHTML = ex.length ? ex.map(c => `<article class="card">
+      <div class="c-h">${logoHTML(c)}<div class="c-n"><b>${esc(c.nome)}</b><span>${esc(c.tipo || "")}</span></div></div>
+      ${linksHTML(c)}</article>`).join("") : '<div class="empty">Nenhum cliente arquivado.</div>';
+}
+
+/* ---------- admin ---------- */
+function renderAdmin(){
+  const linhas = CAD.clientes.map((c,i) => `<div class="adm-row ${c.status === "arquivado" ? "arq" : ""}" data-i="${i}">
+    <div class="ord"><button data-mv="-1" title="Subir">▲</button><button data-mv="1" title="Descer">▼</button></div>
+    <div><input data-f="nome" value="${esc(c.nome)}"><div class="repo">${esc(c.repo)} · ${esc(c.formato)}</div></div>
+    <div><input data-f="tipo" value="${esc(c.tipo || "")}" placeholder="tipo"><input data-f="grupo" value="${esc(c.grupo || "")}" placeholder="grupo (ex: UniBrasil)" style="margin-top:4px"></div>
+    <div><select data-f="status" class="st-${c.status}">${["ativo","pausado","arquivado"].map(s => `<option ${s===c.status?"selected":""}>${s}</option>`).join("")}</select>
+      <label style="display:flex;gap:6px;align-items:center;font-size:12px;margin-top:6px;color:var(--text2)"><input type="checkbox" data-f="logo" ${c.logo?"checked":""} style="width:auto"> logo.png</label></div>
+    <div><textarea data-f="links" placeholder="Um link por linha: Nome | https://…">${esc((c.links || []).map(l => l.label + " | " + l.url).join("\n"))}</textarea></div>
+    <div><input data-f="cor" type="color" value="${esc(c.cor || "#64748b")}" style="height:32px;padding:2px"></div>
+  </div>`).join("");
+  $("#adm").innerHTML = `<div class="adm-row h"><div></div><div>Nome</div><div>Tipo / grupo</div><div>Status</div><div>Links extras</div><div>Cor</div></div>${linhas}`;
+  const sujo = JSON.stringify(CAD) !== JSON.stringify(CAD_PUB);
+  if (sujo) admMsg("Há alterações não salvas: valem só neste navegador até você clicar em “Salvar para todos”.", "");
+}
+function admMsg(t, cls){ const el = $("#admMsg"); el.textContent = t; el.className = "adm-msg " + (cls || ""); }
+function guardarRascunho(){ lsSet(LS_DRAFT, JSON.stringify(CAD) === JSON.stringify(CAD_PUB) ? null : JSON.stringify(CAD)); }
+
+$("#adm").addEventListener("change", e => {
+  const row = e.target.closest(".adm-row"); if (!row || row.classList.contains("h")) return;
+  const c = CAD.clientes[+row.dataset.i], f = e.target.dataset.f; if (!f) return;
+  if (f === "links") c.links = e.target.value.split("\n").map(l => l.split("|")).filter(p => p.length >= 2 && p[1].trim()).map(p => ({label: p[0].trim(), url: p.slice(1).join("|").trim()}));
+  else if (f === "logo") c.logo = e.target.checked;
+  else c[f] = e.target.value;
+  guardarRascunho(); renderTudo();
+});
+$("#adm").addEventListener("click", e => {
+  const b = e.target.closest("button[data-mv]"); if (!b) return;
+  const i = +b.closest(".adm-row").dataset.i, j = i + +b.dataset.mv;
+  if (j < 0 || j >= CAD.clientes.length) return;
+  [CAD.clientes[i], CAD.clientes[j]] = [CAD.clientes[j], CAD.clientes[i]];
+  guardarRascunho(); renderTudo();
+});
+$("#addCli").onclick = () => {
+  const repo = $("#novoRepo").value.trim(); if (!/^[\w.-]+$/.test(repo)) return admMsg("Informe o nome do repositório (ex: sobe_cliente).", "err");
+  if (CAD.clientes.some(c => c.repo === repo)) return admMsg("Esse repo já está no cadastro.", "err");
+  CAD.clientes.push({repo, nome: repo.replace(/^sobe_/,"").replace(/_/g," ").replace(/\b\w/g, l => l.toUpperCase()), grupo:"", tipo:"Captação", status:"ativo", formato: $("#novoFmt").value, cor:"#64748b", logo:true, links:[]});
+  $("#novoRepo").value = ""; guardarRascunho(); renderTudo();
+  admMsg("Cliente adicionado. Os números aparecem depois de salvar e a coleta rodar (até ~2 min).", "ok");
+};
+$("#descartar").onclick = () => { CAD = JSON.parse(JSON.stringify(CAD_PUB)); lsSet(LS_DRAFT, null); renderTudo(); admMsg("Alterações descartadas.", "ok"); };
+$("#baixar").onclick = () => {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(CAD, null, 2) + "\n"], {type:"application/json"}));
+  a.download = "clientes.json"; a.click(); URL.revokeObjectURL(a.href);
+};
+$("#token").value = lsGet(LS_TOKEN) || "";
+$("#token").addEventListener("change", e => lsSet(LS_TOKEN, e.target.value.trim() || null));
+
+async function gh(path, opts){
+  const token = $("#token").value.trim();
+  const r = await fetch("https://api.github.com/repos/" + REPO_PAINEL + path, Object.assign({}, opts, {
+    headers: {"Accept":"application/vnd.github+json", "Authorization":"Bearer " + token, "Content-Type":"application/json"}}));
+  if (!r.ok && r.status !== 204) { let j = {}; try { j = await r.json(); } catch(e) {} throw new Error(r.status + " " + (j.message || "")); }
+  return r.status === 204 ? {} : r.json();
+}
+$("#salvar").onclick = async () => {
+  if (!$("#token").value.trim()) return admMsg("Cole o token do GitHub primeiro (veja “Como criar o token”).", "err");
+  lsSet(LS_TOKEN, $("#token").value.trim());
+  admMsg("Salvando…", "");
+  try {
+    const atual = await gh("/contents/clientes.json");
+    const txt = JSON.stringify(CAD, null, 2) + "\n";
+    const b64 = btoa(String.fromCharCode(...new TextEncoder().encode(txt)));
+    await gh("/contents/clientes.json", {method:"PUT", body: JSON.stringify({message:"Painel: atualiza cadastro de clientes", content:b64, sha:atual.sha})});
+    CAD_PUB = JSON.parse(JSON.stringify(CAD)); lsSet(LS_DRAFT, null);
+    let extra = "";
+    try { await gh("/actions/workflows/coletar.yml/dispatches", {method:"POST", body: JSON.stringify({ref:"main"})}); extra = " Coleta disparada: os números atualizam em ~2 min."; }
+    catch(e) { extra = " (A coleta roda sozinha na próxima hora.)"; }
+    admMsg("Salvo para todos." + extra, "ok");
+    renderTudo();
+  } catch(e) { admMsg("Não consegui salvar: " + e.message + ". Confira o token e as permissões.", "err"); }
+};
+
+/* ---------- navegação e tema ---------- */
+function irPara(p){
+  if (!document.getElementById("p-" + p)) p = "geral";
+  document.querySelectorAll(".tab").forEach(t => t.classList.toggle("on", t.dataset.p === p));
+  document.querySelectorAll(".page").forEach(s => s.classList.toggle("on", s.id === "p-" + p));
+  if (location.hash.slice(1) !== p) history.replaceState(null, "", "#" + p);
+}
+$("#tabs").onclick = e => { const t = e.target.closest(".tab"); if (t) irPara(t.dataset.p); };
+addEventListener("hashchange", () => irPara(location.hash.slice(1)));
+$("#chips").onclick = e => { const b = e.target.closest(".chip"); if (b){ filtroTipo = b.dataset.t; renderGrid(); } };
+$("#busca").oninput = renderGrid; $("#ordem").onchange = renderGrid;
+$("#recarregar").onclick = () => carregar();
+function aplicarTema(t){ if (t) document.documentElement.dataset.theme = t; else delete document.documentElement.dataset.theme; }
+aplicarTema(lsGet(LS_THEME));
+$("#tema").onclick = () => {
+  const escuro = document.documentElement.dataset.theme ? document.documentElement.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+  const t = escuro ? "light" : "dark"; aplicarTema(t); lsSet(LS_THEME, t);
+};
+
+function renderTudo(){ renderKpis(); renderGrid(); renderUni(); renderMeses(); renderTools(); renderEx(); renderAdmin(); }
+
+irPara(location.hash.slice(1) || "geral");
+carregar().catch(e => { $("#coleta").textContent = "erro ao carregar"; $("#grid").innerHTML = `<div class="empty">Não consegui carregar os dados (${esc(e.message)}).</div>`; });
+setInterval(() => { if (!document.hidden) carregar(); }, 10*60*1000);
+</script>
+</body>
+</html>

@@ -1,5 +1,5 @@
 {
-  "_ajuda": "Cadastro do Painel Sobé. status: ativo | pausado | arquivado. segmento: Geral | Infoproduto. responsavel: quem atende. formato diz ao coletor como ler os dados do dash (template, embed, cidades, unibrasil). pagina = arquivo HTML lido no formato embed (padrão: index). somar = outros repos somados neste cliente. moedas = moeda por plataforma quando difere da do dash (ex.: {\"google\": \"USD\"}). mapas = pastas do cliente em sobe_mapamental/mapas (o painel linka o projeto salvo mais recente de cada pasta, pelo link de compartilhamento).",
+  "_ajuda": "Cadastro do Painel Sobé. status: ativo | pausado | arquivado. segmento: Geral | Infoproduto. responsavel: quem atende. formato diz ao coletor como ler os dados do dash (template, embed, cidades, unibrasil). pagina = arquivo HTML lido no formato embed (padrão: index). somar = outros repos somados neste cliente. moedas = moeda por plataforma quando difere da do dash (ex.: {\"google\": \"USD\"}).",
   "ferramentas": [
     {
       "nome": "Mapa Mental",
@@ -45,10 +45,7 @@
       "moedas": {
         "google": "USD",
         "linkedin": "USD"
-      },
-      "mapas": [
-        "adopt"
-      ]
+      }
     },
     {
       "repo": "sobe_quest",
@@ -60,10 +57,7 @@
       "formato": "template",
       "cor": "#334155",
       "logo": true,
-      "links": [],
-      "mapas": [
-        "quest-construtora"
-      ]
+      "links": []
     },
     {
       "repo": "sobe_microkids",
@@ -78,10 +72,7 @@
       "links": [],
       "moedas": {
         "linkedin": "USD"
-      },
-      "mapas": [
-        "microkids"
-      ]
+      }
     },
     {
       "repo": "sobe_gemte",
@@ -93,10 +84,7 @@
       "formato": "embed",
       "cor": "#215F50",
       "logo": true,
-      "links": [],
-      "mapas": [
-        "gemte-seguros"
-      ]
+      "links": []
     },
     {
       "repo": "sobe_drg",
@@ -108,10 +96,7 @@
       "formato": "template",
       "cor": "#14b8a6",
       "logo": true,
-      "links": [],
-      "mapas": [
-        "doctor-g"
-      ]
+      "links": []
     },
     {
       "repo": "sobe_fernanda",
@@ -123,10 +108,7 @@
       "formato": "template",
       "cor": "#9aa63a",
       "logo": true,
-      "links": [],
-      "mapas": [
-        "dra-fernanda-cavalcante"
-      ]
+      "links": []
     },
     {
       "repo": "sobe_violiver",
@@ -138,10 +120,7 @@
       "formato": "template",
       "cor": "#6659A5",
       "logo": true,
-      "links": [],
-      "mapas": [
-        "vi-oliver"
-      ]
+      "links": []
     },
     {
       "repo": "sobe_pro_condomino",
@@ -153,17 +132,7 @@
       "formato": "cidades",
       "cor": "#f59e0b",
       "logo": true,
-      "links": [],
-      "mapas": [
-        {
-          "pasta": "pro-condomino-curitiba",
-          "label": "Mapa Curitiba"
-        },
-        {
-          "pasta": "pro-condomino-joao-pessoa",
-          "label": "Mapa João Pessoa"
-        }
-      ]
+      "links": []
     },
     {
       "repo": "sobe_dra_monica",
@@ -212,10 +181,7 @@
       "formato": "template",
       "cor": "#0ea5e9",
       "logo": false,
-      "links": [],
-      "mapas": [
-        "ana-scalea"
-      ]
+      "links": []
     },
     {
       "repo": "sobe_coa",

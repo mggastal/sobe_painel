@@ -211,8 +211,11 @@ def resumir(acc):
             meses[dia[:7]][1] += cv
             por_plat[p][dia[:7]] += sp
     ult_meses = sorted(meses)[-MESES:]
+    # último dia que o dash já publicou (com ou sem gasto): depois dele é "sem dado ainda", não zero
+    ult_dado = max((dia for p in plats for dia in acc[p]), default=None)
     return {
         "ultimo_dia": ult_inv,
+        "ultimo_dado": ult_dado,
         "plataformas": plats,
         "tem_vendas": VENDAS in acc and any(v[0] for v in acc[VENDAS].values()),
         "serie": serie,
@@ -247,6 +250,10 @@ def coletar(c):
             erros.append(f"{repo}: {type(e).__name__}: {str(e)[:120]}")
         wfs.append(workflow(repo) or {})
     out.update(resumir(acc))
+    # dados valem até o último dia publicado ou até a véspera da geração do dash (dias sem gasto não aparecem na série)
+    if out.get("gerado") and out.get("ultimo_dado"):
+        vespera = (ref_de(out["gerado"]) - timedelta(days=1)).isoformat()
+        out["ultimo_dado"] = max(out["ultimo_dado"], vespera)
     # moeda por plataforma: o cadastro manda (ex.: Adopt Google em USD), senão a moeda do dash
     padrao = out.pop("moeda_cod", None) or "BRL"
     out["moedas"] = {p: (c.get("moedas") or {}).get(p) or padrao for p in out.get("plataformas", [])}
@@ -262,16 +269,43 @@ def coletar(c):
     return out
 
 
-def cambio():
-    """Cotação diária (compra) em R$ das moedas estrangeiras, para os totais convertidos."""
+def cambio(anterior=None):
+    """Cotação diária em R$ das moedas estrangeiras, para os totais convertidos.
+    Fonte: PTAX de fechamento do Banco Central; reservas: BCE (Frankfurter) e AwesomeAPI.
+    Se todas falharem, mantém a última cotação boa do status.json anterior."""
+    hoje = datetime.now(BRT).date()
+    ini = hoje - timedelta(days=200)
     out = {}
     for m in ("USD", "EUR"):
+        tab = {}
         try:
-            lst = json.loads(baixar(f"https://economia.awesomeapi.com.br/json/daily/{m}-BRL/150"))
-            out[m] = {datetime.fromtimestamp(int(x["timestamp"]), BRT).date().isoformat(): round(float(x["bid"]), 4)
-                      for x in lst}
+            url = ("https://olinda.bcb.gov.br/olinda/servico/PTAX/versao/v1/odata/CotacaoMoedaPeriodo("
+                   "moeda=@moeda,dataInicial=@dataInicial,dataFinalCotacao=@dataFinalCotacao)"
+                   f"?@moeda='{m}'&@dataInicial='{ini:%m-%d-%Y}'&@dataFinalCotacao='{hoje:%m-%d-%Y}'"
+                   "&$format=json&$select=cotacaoCompra,dataHoraCotacao,tipoBoletim")
+            for x in json.loads(baixar(url)).get("value") or []:
+                if x.get("tipoBoletim") == "Fechamento":
+                    tab[x["dataHoraCotacao"][:10]] = round(float(x["cotacaoCompra"]), 4)
         except Exception as e:
-            print("cotação", m, "falhou:", e)
+            print("cotação", m, "PTAX falhou:", e)
+        if not tab:
+            try:
+                d = json.loads(baixar(f"https://api.frankfurter.dev/v1/{ini}..?base={m}&symbols=BRL"))
+                tab = {k: round(float(v["BRL"]), 4) for k, v in (d.get("rates") or {}).items()}
+            except Exception as e:
+                print("cotação", m, "Frankfurter falhou:", e)
+        if not tab:
+            try:
+                lst = json.loads(baixar(f"https://economia.awesomeapi.com.br/json/daily/{m}-BRL/150"))
+                tab = {datetime.fromtimestamp(int(x["timestamp"]), BRT).date().isoformat(): round(float(x["bid"]), 4)
+                       for x in lst}
+            except Exception as e:
+                print("cotação", m, "AwesomeAPI falhou:", e)
+        if not tab and anterior and anterior.get(m):
+            print("cotação", m, ": mantendo a última cotação boa")
+            tab = anterior[m]
+        if tab:
+            out[m] = tab
     return out
 
 
@@ -284,7 +318,11 @@ def main():
         print(f"{c['repo']:<22} {'ok ' if r['ok'] else 'ERRO'} ultimo={r.get('ultimo_dia', '-')} "
               f"plats={','.join(r.get('plataformas', []))} vendas={r.get('tem_vendas', False)} "
               f"wf={r['workflow'].get('conclusao')}", r.get("erro", ""))
-    status = {"gerado_em": datetime.now(BRT).isoformat(timespec="seconds"), "cambio": cambio(), "clientes": res}
+    try:
+        anterior = json.load(open(os.path.join(base, "status.json"), encoding="utf-8")).get("cambio")
+    except Exception:
+        anterior = None
+    status = {"gerado_em": datetime.now(BRT).isoformat(timespec="seconds"), "cambio": cambio(anterior), "clientes": res}
     with open(os.path.join(base, "status.json"), "w", encoding="utf-8") as f:
         json.dump(status, f, ensure_ascii=False, separators=(",", ":"))
     print("status.json:", os.path.getsize(os.path.join(base, "status.json")) // 1024, "KB")

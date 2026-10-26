@@ -371,8 +371,10 @@ function delta(a, b, inverso){
 }
 
 /* ---------- períodos ---------- */
-function janelas(){
-  const hoje = hojeBRT(), ontem = addDias(hoje,-1), ym = hoje.slice(0,7), dia = +hoje.slice(8,10);
+/* lim = último dia que o dash do cliente já publicou: a janela termina nele (dia sem dado não conta como zero) */
+function janelas(lim){
+  const hojeR = hojeBRT(), ym = hojeR.slice(0,7);
+  const hoje = lim && lim < hojeR ? lim : hojeR, ontem = lim && lim < addDias(hojeR,-1) ? lim : addDias(hojeR,-1), dia = +hoje.slice(8,10);
   if (periodo === "30d") return {a:[addDias(ontem,-29), ontem], b:[addDias(ontem,-59), addDias(ontem,-30)], cmp:"30 dias anteriores"};
   if (periodo === "mes"){ const ant = addMes(ym,-1), fimAnt = addDias(ant+"-01", dia-1);
     return {a:[ym+"-01", hoje], b:[ant+"-01", fimAnt > fimMes(ant) ? fimMes(ant) : fimAnt], cmp:"mesmo período de " + mesLbl(ant)}; }
@@ -414,13 +416,18 @@ async function carregar(){
 
 /* ---------- métricas por cliente ---------- */
 function metr(c){
-  const s = ST.clientes[c.repo] || {}, J = janelas();
+  const s = ST.clientes[c.repo] || {}, J = janelas(s.ultimo_dado);
   const m = {s, A: agg(s, J.a), B: agg(s, J.b), vendas: !!s.tem_vendas && plat === "todas"};
-  m.moeda = simb(m.A.mo); m.misto = new Set(Object.keys(m.A.moedaP).filter(p => m.A.por[p] > 0).map(p => m.A.moedaP[p])).size > 1;
+  m.moeda = simb(m.A.mo);
+  // gasto separado por moeda (ex.: Adopt Meta em R$ e Google em US$): misto = mais de uma moeda com gasto no período
+  m.porMoeda = {}; Object.keys(m.A.por).forEach(p => { if (m.A.por[p] > 0) m.porMoeda[m.A.moedaP[p]] = (m.porMoeda[m.A.moedaP[p]] || 0) + m.A.por[p]; });
+  m.misto = Object.keys(m.porMoeda).length > 1;
   if (s.serie){
-    const hoje = hojeBRT(), ini = addDias(hoje,-29), dias = s.serie.dias;
+    // gráfico até ontem (o dia de hoje ainda está incompleto) ou até o último dia publicado
+    const ontem = addDias(hojeBRT(),-1), fim = s.ultimo_dado && s.ultimo_dado < ontem ? s.ultimo_dado : ontem, ini = addDias(fim,-29), dias = s.serie.dias;
     const md = s.moedas || {}, conv = m.A.mo === "BRL";
-    m.spark = dias.map((d,i) => [d, platsAtivas(s).reduce((a,p) => a + s.serie[p][i][0] * (conv ? taxa(md[p], d) : 1), 0)]).filter(x => x[0] >= ini && x[0] <= hoje);
+    m.spark = dias.map((d,i) => [d, platsAtivas(s).reduce((a,p) => a + s.serie[p][i][0] * (conv ? taxa(md[p], d) : 1), 0)]).filter(x => x[0] >= ini && x[0] <= fim);
+    m.ate = fim;
   }
   m.lct = typeof s.lancamento === "string" ? s.lancamento : "";
   m.saude = saude(c, s);
@@ -435,6 +442,7 @@ function saude(c, s){
   const horas = wf.quando ? (Date.now() - new Date(wf.quando))/36e5 : null;
   if (horas !== null && horas > 30) return {cls:"warn", txt:"Sem atualizar " + ha(wf.quando), n:2};
   if (c.status === "pausado") return {cls:"neu", txt:"Pausado", n:0};
+  if (s.ultimo_dado && s.ultimo_dado < addDias(hojeBRT(), -3)) return {cls:"warn", txt:"Dados parados em " + dm(s.ultimo_dado), n:2};
   if (!s.ultimo_dia) return {cls:"warn", txt:"Sem investimento", n:2};
   if (s.ultimo_dia < addDias(hojeBRT(), -3)) return {cls:"warn", txt:"Sem investimento desde " + dm(s.ultimo_dia), n:2};
   return {cls:"ok", txt: wf.quando ? "Atualizado " + ha(wf.quando) : "Atualizado", n:0};
@@ -491,22 +499,30 @@ function linksHTML(c){
   return `<div class="c-links"><a class="btn pri sm" href="${PAGES}/${c.repo}/" target="_blank" rel="noopener">Abrir dash ↗</a>` +
     (c.links || []).map(l => `<a class="btn sm" href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label)}</a>`).join("") + `</div>`;
 }
+/* investimento na moeda de cada plataforma: "R$ 168 + US$ 127" quando misto */
+function invTxt(m, A, curto){
+  if (!m.misto) return curto ? brlK(A.sp, m.moeda) : brl(A.sp, m.moeda);
+  return ["BRL","USD","EUR"].concat(Object.keys(m.porMoeda)).filter((c,i,a) => a.indexOf(c) === i && m.porMoeda[c])
+    .map(c => curto ? brlK(m.porMoeda[c], simb(c)) : brl(m.porMoeda[c], simb(c))).join(" + ");
+}
+const aprox = (m, txt) => m.misto ? "≈ " + txt : txt;
 const metrica = (l, v, s) => `<div><div class="m-l">${l}</div><div class="m-v">${v}</div><div class="m-s">${s || "&nbsp;"}</div></div>`;
 function cardHTML(c){
   const m = metr(c), sa = m.saude, A = m.A, B = m.B, mo = m.moeda;
   const cpa = A.cv ? A.sp/A.cv : null, cpaB = B.cv ? B.sp/B.cv : null;
   let corpo = `<div class="c-m">
-      ${metrica("Investimento", brlK(A.sp, mo), delta(A.sp, B.sp))}
+      ${m.misto ? `<div style="grid-column:span 2"><div class="m-l">Investimento</div><div class="m-v">${invTxt(m, A, true)}</div><div class="m-s">${delta(A.spR, B.spR)} <span class="d-0">no total em R$</span></div></div>` : metrica("Investimento", brlK(A.sp, mo), delta(A.sp, B.sp))}
       ${metrica("Conversões", A.cv ? int(A.cv) : "—", A.cv || B.cv ? delta(A.cv, B.cv) : "")}
-      ${metrica("Custo/conv.", cpa ? brl(cpa, mo) : "—", cpa && cpaB ? delta(cpa, cpaB, true) : "")}
+      ${m.misto ? "" : metrica("Custo/conv.", cpa ? brl(cpa, mo) : "—", cpa && cpaB ? delta(cpa, cpaB, true) : "")}
     </div>`;
+  if (m.misto) corpo += `<div class="c-m">${metrica("Custo/conv.", cpa ? "≈ " + brl(cpa, "R$") : "—", cpa && cpaB ? delta(cpa, cpaB, true) : "")}<div style="grid-column:span 2;align-self:center" class="nota">Custo/conv. em R$, convertendo o dólar pela cotação do dia.</div></div>`;
   if (m.vendas) corpo += `<div class="c-m v">
       ${metrica("Vendas", int(A.vd), delta(A.vd, B.vd))}
       ${metrica("Faturamento", brlK(A.fat, mo), delta(A.fat, B.fat))}
       ${metrica("ROAS", A.spR && A.fatR ? nf2.format(A.fatR/A.spR) + "x" : "—", "")}
     </div>`;
-  corpo += `<div>${stackHTML(A.porR, A.spR, true)}${legHTML(A.por, A.spR, A.moedaP, true, A.porR)}${m.misto ? `<div class="nota" style="margin-top:4px">Moedas diferentes por plataforma: totais em R$ pela cotação do dia.</div>` : ""}</div>`;
-  if (m.spark) corpo += `<div><div class="spark">${sparkSVG(m.spark, mo)}</div><div class="spark-l"><span>Investimento diário · últimos 30 dias</span></div></div>`;
+  corpo += `<div>${stackHTML(A.porR, A.spR, true)}${legHTML(A.por, A.spR, A.moedaP, true, A.porR)}</div>`;
+  if (m.spark) corpo += `<div><div class="spark">${sparkSVG(m.spark, mo)}</div><div class="spark-l"><span>Investimento diário · 30 dias</span><span>dados até ${dm(m.ate)}</span></div></div>`;
   if (m.s.ok === false) corpo = `<div class="empty" style="padding:18px">Não consegui ler os dados deste dash.</div>`;
   const badges = [c.status === "pausado" && sa.cls !== "neu" ? `<span class="pill neu">Pausado</span>` : "", m.lct ? `<span class="pill neu">${esc(m.lct)}</span>` : ""].join("");
   return `<article class="card">
@@ -560,19 +576,19 @@ function colunas(){
     {k:"nome", t:"Cliente", v:r => r.c.nome, f:r => esc(r.c.nome), txt:true},
     {k:"resp", t:"Responsável", v:r => r.c.responsavel || "", f:r => esc(r.c.responsavel || "—"), l:true, txt:true},
     {k:"saude", t:"Situação", v:r => r.m.saude.n, f:r => `<span class="pill ${r.m.saude.cls}">${esc(r.m.saude.txt)}</span>`, l:true},
-    {k:"inv", t:"Investimento", csv:"Investimento (R$)", v:r => r.A.spR, f:r => brl(r.A.sp, r.m.moeda), sum:"sp"},
-    {k:"dinv", t:"Δ invest.", v:r => pct(r.A.sp, r.B.sp) ?? -1e9, f:r => delta(r.A.sp, r.B.sp)},
+    {k:"inv", t:"Investimento", csv:"Investimento (R$)", v:r => r.A.spR, f:r => invTxt(r.m, r.A), sum:"sp"},
+    {k:"dinv", t:"Δ invest.", v:r => pct(r.A.spR, r.B.spR) ?? -1e9, f:r => delta(r.A.spR, r.B.spR)},
   ];
   if (plat === "todas" && ps.length > 1) ps.forEach(p => cols.push({k:"p_"+p, t:`<i style="background:var(--${p})"></i>${PLATS[p]}`, csv:PLATS[p] + " (R$)", v:r => r.A.porR[p]||0, f:r => r.A.por[p] ? brl(r.A.por[p], simb(r.A.moedaP[p])) : "—", z:r => !r.A.por[p], sumP:p, cls:p===ps[0]?"sep":""}));
   cols.push(
     {k:"imp", t:"Impressões", v:r => r.A.imp, f:r => r.A.imp ? int(r.A.imp) : "—", sum:"imp", cls:"sep"},
     {k:"clk", t:"Cliques", v:r => r.A.clk, f:r => r.A.clk ? int(r.A.clk) : "—", sum:"clk"},
     {k:"ctr", t:"CTR", v:r => r.A.imp ? r.A.clk/r.A.imp : 0, f:r => r.A.imp ? nf2.format(r.A.clk/r.A.imp*100) + "%" : "—", tot:T => T.imp ? nf2.format(T.clk/T.imp*100) + "%" : "—"},
-    {k:"cpm", t:"CPM", csv:"CPM (R$)", v:r => r.A.imp ? r.A.spR/r.A.imp*1000 : 0, f:r => r.A.imp ? brl(r.A.sp/r.A.imp*1000, r.m.moeda) : "—", tot:T => T.imp ? brl(T.sp/T.imp*1000) : "—"},
-    {k:"cpc", t:"CPC", csv:"CPC (R$)", v:r => r.A.clk ? r.A.spR/r.A.clk : 0, f:r => r.A.clk ? brl(r.A.sp/r.A.clk, r.m.moeda) : "—", tot:T => T.clk ? brl(T.sp/T.clk) : "—"},
+    {k:"cpm", t:"CPM", csv:"CPM (R$)", v:r => r.A.imp ? r.A.spR/r.A.imp*1000 : 0, f:r => r.A.imp ? aprox(r.m, brl(r.A.sp/r.A.imp*1000, r.m.moeda)) : "—", tot:T => T.imp ? brl(T.sp/T.imp*1000) : "—"},
+    {k:"cpc", t:"CPC", csv:"CPC (R$)", v:r => r.A.clk ? r.A.spR/r.A.clk : 0, f:r => r.A.clk ? aprox(r.m, brl(r.A.sp/r.A.clk, r.m.moeda)) : "—", tot:T => T.clk ? brl(T.sp/T.clk) : "—"},
     {k:"cv", t:"Conversões", v:r => r.A.cv, f:r => r.A.cv ? int(r.A.cv) : "—", sum:"cv", cls:"sep"},
     {k:"dcv", t:"Δ conv.", v:r => pct(r.A.cv, r.B.cv) ?? -1e9, f:r => r.A.cv || r.B.cv ? delta(r.A.cv, r.B.cv) : "—"},
-    {k:"cpa", t:"Custo/conv.", csv:"Custo/conv. (R$)", v:r => r.A.cv ? r.A.spR/r.A.cv : 0, f:r => r.A.cv ? brl(r.A.sp/r.A.cv, r.m.moeda) : "—", tot:T => T.cv ? brl(T.sp/T.cv) : "—"},
+    {k:"cpa", t:"Custo/conv.", csv:"Custo/conv. (R$)", v:r => r.A.cv ? r.A.spR/r.A.cv : 0, f:r => r.A.cv ? aprox(r.m, brl(r.A.sp/r.A.cv, r.m.moeda)) : "—", tot:T => T.cv ? brl(T.sp/T.cv) : "—"},
   );
   if (plat === "todas") cols.push(
     {k:"vd", t:"Vendas", v:r => r.A.vd, f:r => r.m.vendas ? int(r.A.vd) : "—", sum:"vd", cls:"sep"},
@@ -651,7 +667,7 @@ function renderBarra(){
   const presentes = Object.keys(PLATS).filter(p => visiveis().some(c => ((ST.clientes[c.repo]||{}).plataformas||[]).includes(p)));
   if (plat !== "todas" && !presentes.includes(plat)) plat = "todas";
   $("#segPlat").innerHTML = `<button data-v="todas" class="${plat==="todas"?"on":""}">Todas</button>` + presentes.map(p => `<button data-v="${p}" class="${plat===p?"on":""}"><i style="background:var(--${p})"></i>${PLATS[p]}</button>`).join("");
-  const J = janelas(); $("#pinfo").textContent = `${dm(J.a[0])} a ${dm(J.a[1])} · comparado com ${J.cmp}`;
+  const J = janelas(); $("#pinfo").textContent = `${dm(J.a[0])} a ${dm(J.a[1])} · comparado com ${J.cmp} · cada cliente até o último dia que o dash publicou`;
 }
 
 /* ---------- admin (servidor com login da equipe) ---------- */

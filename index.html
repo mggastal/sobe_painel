@@ -386,12 +386,14 @@ const platsAtivas = s => (s.plataformas || []).filter(p => plat === "todas" || p
 
 /* soma um intervalo. Cada plataforma fica na sua moeda (por / moedaP); *R = convertido em R$ pela cotação do dia.
    sp/fat e mo: na moeda do cliente quando todas as plataformas usam a mesma, senão em R$. */
-function agg(s, [de, ate]){
-  const r = {sp:0, spR:0, cv:0, imp:0, clk:0, vd:0, fat:0, fatR:0, por:{}, porR:{}, moedaP:{}, mo:"BRL"};
+function agg(s, [de, ate], alvo){
+  // alvo = moeda do custo/conv. quando o cliente mistura moedas (ex.: Adopt em US$); spA = gasto convertido para ela
+  alvo = alvo || "BRL";
+  const r = {sp:0, spR:0, spA:0, alvo, cv:0, imp:0, clk:0, vd:0, fat:0, fatR:0, por:{}, porR:{}, moedaP:{}, mo:"BRL"};
   if (!s || !s.serie) return r;
   const dias = s.serie.dias, md = s.moedas || {}, ps = platsAtivas(s);
   ps.forEach(p => { let t = 0, tR = 0; const mp = md[p] || "BRL"; r.moedaP[p] = mp;
-    s.serie[p].forEach((v,i) => { if (dias[i] >= de && dias[i] <= ate){ t += v[0]; tR += v[0]*taxa(mp, dias[i]); r.cv += v[1]; r.imp += v[2]||0; r.clk += v[3]||0; } });
+    s.serie[p].forEach((v,i) => { if (dias[i] >= de && dias[i] <= ate){ t += v[0]; tR += v[0]*taxa(mp, dias[i]); r.spA += v[0]*taxa(mp, dias[i])/taxa(alvo, dias[i]); r.cv += v[1]; r.imp += v[2]||0; r.clk += v[3]||0; } });
     r.por[p] = t; r.porR[p] = tR; r.spR += tR; });
   const moedas = [...new Set(ps.map(p => md[p] || "BRL"))];
   r.mo = moedas.length === 1 ? moedas[0] : "BRL";
@@ -417,7 +419,7 @@ async function carregar(){
 /* ---------- métricas por cliente ---------- */
 function metr(c){
   const s = ST.clientes[c.repo] || {}, J = janelas(s.ultimo_dado);
-  const m = {s, A: agg(s, J.a), B: agg(s, J.b), vendas: !!s.tem_vendas && plat === "todas"};
+  const m = {s, A: agg(s, J.a, c.moeda_custo), B: agg(s, J.b, c.moeda_custo), vendas: !!s.tem_vendas && plat === "todas"};
   m.moeda = simb(m.A.mo);
   // gasto separado por moeda (ex.: Adopt Meta em R$ e Google em US$): misto = mais de uma moeda com gasto no período
   m.porMoeda = {}; Object.keys(m.A.por).forEach(p => { if (m.A.por[p] > 0) m.porMoeda[m.A.moedaP[p]] = (m.porMoeda[m.A.moedaP[p]] || 0) + m.A.por[p]; });
@@ -506,16 +508,19 @@ function invTxt(m, A, curto){
     .map(c => curto ? brlK(m.porMoeda[c], simb(c)) : brl(m.porMoeda[c], simb(c))).join(" + ");
 }
 const aprox = (m, txt) => m.misto ? "≈ " + txt : txt;
+/* gasto usado nos custos (CPL, CPM, CPC): na moeda do cliente, ou na moeda_custo convertida quando misto */
+const spCusto = (m, A) => m.misto ? A.spA : A.sp;
+const moCusto = m => m.misto ? simb(m.A.alvo) : m.moeda;
 const metrica = (l, v, s) => `<div><div class="m-l">${l}</div><div class="m-v">${v}</div><div class="m-s">${s || "&nbsp;"}</div></div>`;
 function cardHTML(c){
   const m = metr(c), sa = m.saude, A = m.A, B = m.B, mo = m.moeda;
-  const cpa = A.cv ? A.sp/A.cv : null, cpaB = B.cv ? B.sp/B.cv : null;
+  const cpa = A.cv ? spCusto(m, A)/A.cv : null, cpaB = B.cv ? spCusto(m, B)/B.cv : null;
   let corpo = `<div class="c-m">
       ${m.misto ? `<div style="grid-column:span 2"><div class="m-l">Investimento</div><div class="m-v">${invTxt(m, A, true)}</div><div class="m-s">${delta(A.spR, B.spR)} <span class="d-0">no total em R$</span></div></div>` : metrica("Investimento", brlK(A.sp, mo), delta(A.sp, B.sp))}
       ${metrica("Conversões", A.cv ? int(A.cv) : "—", A.cv || B.cv ? delta(A.cv, B.cv) : "")}
       ${m.misto ? "" : metrica("Custo/conv.", cpa ? brl(cpa, mo) : "—", cpa && cpaB ? delta(cpa, cpaB, true) : "")}
     </div>`;
-  if (m.misto) corpo += `<div class="c-m">${metrica("Custo/conv.", cpa ? "≈ " + brl(cpa, "R$") : "—", cpa && cpaB ? delta(cpa, cpaB, true) : "")}<div style="grid-column:span 2;align-self:center" class="nota">Custo/conv. em R$, convertendo o dólar pela cotação do dia.</div></div>`;
+  if (m.misto) corpo += `<div class="c-m">${metrica("Custo/conv.", cpa ? "≈ " + brl(cpa, moCusto(m)) : "—", cpa && cpaB ? delta(cpa, cpaB, true) : "")}<div style="grid-column:span 2;align-self:center" class="nota">Custo/conv. em ${moCusto(m)}, convertendo ${m.A.alvo === "BRL" ? "o dólar" : "o real"} pela cotação do dia.</div></div>`;
   if (m.vendas) corpo += `<div class="c-m v">
       ${metrica("Vendas", int(A.vd), delta(A.vd, B.vd))}
       ${metrica("Faturamento", brlK(A.fat, mo), delta(A.fat, B.fat))}
@@ -584,11 +589,11 @@ function colunas(){
     {k:"imp", t:"Impressões", v:r => r.A.imp, f:r => r.A.imp ? int(r.A.imp) : "—", sum:"imp", cls:"sep"},
     {k:"clk", t:"Cliques", v:r => r.A.clk, f:r => r.A.clk ? int(r.A.clk) : "—", sum:"clk"},
     {k:"ctr", t:"CTR", v:r => r.A.imp ? r.A.clk/r.A.imp : 0, f:r => r.A.imp ? nf2.format(r.A.clk/r.A.imp*100) + "%" : "—", tot:T => T.imp ? nf2.format(T.clk/T.imp*100) + "%" : "—"},
-    {k:"cpm", t:"CPM", csv:"CPM (R$)", v:r => r.A.imp ? r.A.spR/r.A.imp*1000 : 0, f:r => r.A.imp ? aprox(r.m, brl(r.A.sp/r.A.imp*1000, r.m.moeda)) : "—", tot:T => T.imp ? brl(T.sp/T.imp*1000) : "—"},
-    {k:"cpc", t:"CPC", csv:"CPC (R$)", v:r => r.A.clk ? r.A.spR/r.A.clk : 0, f:r => r.A.clk ? aprox(r.m, brl(r.A.sp/r.A.clk, r.m.moeda)) : "—", tot:T => T.clk ? brl(T.sp/T.clk) : "—"},
+    {k:"cpm", t:"CPM", csv:"CPM (R$)", v:r => r.A.imp ? r.A.spR/r.A.imp*1000 : 0, f:r => r.A.imp ? aprox(r.m, brl(spCusto(r.m, r.A)/r.A.imp*1000, moCusto(r.m))) : "—", tot:T => T.imp ? brl(T.sp/T.imp*1000) : "—"},
+    {k:"cpc", t:"CPC", csv:"CPC (R$)", v:r => r.A.clk ? r.A.spR/r.A.clk : 0, f:r => r.A.clk ? aprox(r.m, brl(spCusto(r.m, r.A)/r.A.clk, moCusto(r.m))) : "—", tot:T => T.clk ? brl(T.sp/T.clk) : "—"},
     {k:"cv", t:"Conversões", v:r => r.A.cv, f:r => r.A.cv ? int(r.A.cv) : "—", sum:"cv", cls:"sep"},
     {k:"dcv", t:"Δ conv.", v:r => pct(r.A.cv, r.B.cv) ?? -1e9, f:r => r.A.cv || r.B.cv ? delta(r.A.cv, r.B.cv) : "—"},
-    {k:"cpa", t:"Custo/conv.", csv:"Custo/conv. (R$)", v:r => r.A.cv ? r.A.spR/r.A.cv : 0, f:r => r.A.cv ? aprox(r.m, brl(r.A.sp/r.A.cv, r.m.moeda)) : "—", tot:T => T.cv ? brl(T.sp/T.cv) : "—"},
+    {k:"cpa", t:"Custo/conv.", csv:"Custo/conv. (R$)", v:r => r.A.cv ? r.A.spR/r.A.cv : 0, f:r => r.A.cv ? aprox(r.m, brl(spCusto(r.m, r.A)/r.A.cv, moCusto(r.m))) : "—", tot:T => T.cv ? brl(T.sp/T.cv) : "—"},
   );
   if (plat === "todas") cols.push(
     {k:"vd", t:"Vendas", v:r => r.A.vd, f:r => r.m.vendas ? int(r.A.vd) : "—", sum:"vd", cls:"sep"},

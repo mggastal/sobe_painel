@@ -125,6 +125,9 @@ def ler_unibrasil(d, acc, ref):
         somar_linha(acc, "meta", r["d"], ref, r.get("sp"), r.get("ld"), r.get("im"), r.get("ck"))
     for r in d.get("google") or []:
         somar_linha(acc, "google", r["d"], ref, r.get("sp"), r.get("cv"), r.get("im"), r.get("ck"))
+    # TikTok (campanha de seguidores): entra investimento, impressões e cliques; seguidor não conta como conversão
+    for r in d.get("tiktok") or []:
+        somar_linha(acc, "tiktok", r["d"], ref, r.get("sp"), 0, r.get("im"), r.get("ck"))
 
 
 def extrair_const(html, nome):

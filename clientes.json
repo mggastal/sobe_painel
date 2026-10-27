@@ -156,7 +156,7 @@
       "status": "ativo",
       "formato": "embed",
       "cor": "#0ea5e9",
-      "logo": false,
+      "logo": true,
       "links": [],
       "pagina": "perpetuo.html"
     },

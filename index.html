@@ -11,7 +11,7 @@
   color-scheme:light;
   --bg:#f4f5f7;--card:#ffffff;--card2:#f8f9fb;--border:#e4e6eb;--border2:#d3d6dd;
   --text:#111318;--text2:#4b5160;--muted:#80869a;
-  --meta:#2a78d6;--google:#eb6834;--linkedin:#1baf7a;--tiktok:#eda100;--spark:#5b6475;
+  --meta:#0081fb;--google:#34a853;--linkedin:#0a66c2;--tiktok:#111111;--tiktok-fg:#ffffff;--spark:#5b6475;
   --ok:#15803d;--ok-bg:#e8f6ed;--warn:#b45309;--warn-bg:#fdf3e2;--crit:#b91c1c;--crit-bg:#fdecec;
   --up:#15803d;--down:#b91c1c;
   --head:#0f1420;--head-text:#ffffff;
@@ -22,7 +22,7 @@
     color-scheme:dark;
     --bg:#0e1015;--card:#171a21;--card2:#1d212a;--border:#272b35;--border2:#343946;
     --text:#eef0f4;--text2:#b4b9c6;--muted:#8a90a0;
-    --meta:#3987e5;--google:#d95926;--linkedin:#199e70;--tiktok:#c98500;--spark:#9aa3b5;
+    --meta:#1a8cff;--google:#3fb760;--linkedin:#3b8fe0;--tiktok:#e9eaee;--tiktok-fg:#111111;--spark:#9aa3b5;
     --ok:#4ade80;--ok-bg:#14291c;--warn:#fbbf24;--warn-bg:#2d2412;--crit:#f87171;--crit-bg:#2f1616;
     --up:#4ade80;--down:#f87171;
     --head:#090b10;--shadow:none;
@@ -32,7 +32,7 @@
   color-scheme:dark;
   --bg:#0e1015;--card:#171a21;--card2:#1d212a;--border:#272b35;--border2:#343946;
   --text:#eef0f4;--text2:#b4b9c6;--muted:#8a90a0;
-  --meta:#3987e5;--google:#d95926;--linkedin:#199e70;--tiktok:#c98500;--spark:#9aa3b5;
+  --meta:#1a8cff;--google:#3fb760;--linkedin:#3b8fe0;--tiktok:#e9eaee;--tiktok-fg:#111111;--spark:#9aa3b5;
   --ok:#4ade80;--ok-bg:#14291c;--warn:#fbbf24;--warn-bg:#2d2412;--crit:#f87171;--crit-bg:#2f1616;
   --up:#4ade80;--down:#f87171;
   --head:#090b10;--shadow:none;
@@ -71,6 +71,11 @@ h2{font-size:18px;font-weight:700;letter-spacing:-.2px}
 .seg button{border:0;background:none;padding:6px 12px;border-radius:7px;font-size:12.5px;font-weight:600;color:var(--text2);cursor:pointer;white-space:nowrap}
 .seg button.on{background:var(--text);color:var(--card)}
 .seg button i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:5px;vertical-align:0}
+.ico{display:inline-block;width:1em;height:1em;vertical-align:-.14em;fill:currentColor;flex:none}
+.seg button.pl{display:inline-flex;align-items:center;gap:6px}
+.seg button.pl .ico{color:var(--c);width:14px;height:14px}
+.seg button.pl.on{background:var(--c);color:var(--f,#fff)}
+.seg button.pl.on .ico{color:var(--f,#fff)}
 .pinfo{font-size:12px;color:var(--muted)}
 
 /* KPIs */
@@ -89,6 +94,7 @@ h2{font-size:18px;font-weight:700;letter-spacing:-.2px}
 .leg{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:12.5px;color:var(--text2);margin-top:9px}
 .leg.sm{font-size:11.5px;gap:3px 12px;margin-top:6px}
 .leg i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px;vertical-align:0}
+.leg .ico,th .ico,td .ico{margin-right:5px}
 .leg b{color:var(--text);font-weight:700;font-variant-numeric:tabular-nums}
 
 /* filtros */
@@ -200,8 +206,8 @@ th i,td i.dot{display:inline-block;width:8px;height:8px;border-radius:2px;margin
 <body>
 <header class="top">
   <div class="top-in">
-    <a class="brand" href="#geral"><img src="sobe.png" alt="Sobé"><b>Painel Sobé</b><span>visão gerencial da agência</span></a>
-    <div class="top-r"><span id="coleta">carregando…</span><button class="tbtn" id="recarregar" title="Buscar os dados mais recentes">↻</button><button class="tbtn" id="tema">◐ Tema</button></div>
+    <a class="brand" href="#geral"><img src="sobe.png" alt="Sobé"><b>Painel Sobé</b></a>
+    <div class="top-r"><span id="coleta">carregando…</span><button class="tbtn" id="tema">◐ Tema</button></div>
   </div>
   <nav class="tabs" id="tabs">
     <button class="tab on" data-p="geral">Visão geral</button>
@@ -306,7 +312,10 @@ th i,td i.dot{display:inline-block;width:8px;height:8px;border-radius:2px;margin
 const WORKER_URL = "https://sobepainel.matheusgastal.workers.dev";
 const PAGES = "https://mggastal.github.io";
 const LS_DRAFT = "sobe_painel_rascunho", LS_SESSAO = "sobe_painel_sessao", LS_THEME = "sobe_painel_tema", LS_PER = "sobe_painel_periodo";
-const PLATS = {meta:"Meta", google:"Google", linkedin:"LinkedIn", tiktok:"TikTok"};
+const PLATS = {meta:"Meta", google:"Google Ads", linkedin:"LinkedIn", tiktok:"TikTok"};
+/* logos das plataformas (Simple Icons), na cor da marca */
+const ICO = {"meta": "M6.915 4.03c-1.968 0-3.683 1.28-4.871 3.113C.704 9.208 0 11.883 0 14.449c0 .706.07 1.369.21 1.973a6.624 6.624 0 0 0 .265.86 5.297 5.297 0 0 0 .371.761c.696 1.159 1.818 1.927 3.593 1.927 1.497 0 2.633-.671 3.965-2.444.76-1.012 1.144-1.626 2.663-4.32l.756-1.339.186-.325c.061.1.121.196.183.3l2.152 3.595c.724 1.21 1.665 2.556 2.47 3.314 1.046.987 1.992 1.22 3.06 1.22 1.075 0 1.876-.355 2.455-.843a3.743 3.743 0 0 0 .81-.973c.542-.939.861-2.127.861-3.745 0-2.72-.681-5.357-2.084-7.45-1.282-1.912-2.957-2.93-4.716-2.93-1.047 0-2.088.467-3.053 1.308-.652.57-1.257 1.29-1.82 2.05-.69-.875-1.335-1.547-1.958-2.056-1.182-.966-2.315-1.303-3.454-1.303zm10.16 2.053c1.147 0 2.188.758 2.992 1.999 1.132 1.748 1.647 4.195 1.647 6.4 0 1.548-.368 2.9-1.839 2.9-.58 0-1.027-.23-1.664-1.004-.496-.601-1.343-1.878-2.832-4.358l-.617-1.028a44.908 44.908 0 0 0-1.255-1.98c.07-.109.141-.224.211-.327 1.12-1.667 2.118-2.602 3.358-2.602zm-10.201.553c1.265 0 2.058.791 2.675 1.446.307.327.737.871 1.234 1.579l-1.02 1.566c-.757 1.163-1.882 3.017-2.837 4.338-1.191 1.649-1.81 1.817-2.486 1.817-.524 0-1.038-.237-1.383-.794-.263-.426-.464-1.13-.464-2.046 0-2.221.63-4.535 1.66-6.088.454-.687.964-1.226 1.533-1.533a2.264 2.264 0 0 1 1.088-.285z", "google": "M3.9998 22.9291C1.7908 22.9291 0 21.1383 0 18.9293s1.7908-3.9998 3.9998-3.9998 3.9998 1.7908 3.9998 3.9998-1.7908 3.9998-3.9998 3.9998zm19.4643-6.0004L15.4632 3.072C14.3586 1.1587 11.9121.5028 9.9988 1.6074S7.4295 5.1585 8.5341 7.0718l8.0009 13.8567c1.1046 1.9133 3.5511 2.5679 5.4644 1.4646 1.9134-1.1046 2.568-3.5511 1.4647-5.4644zM7.5137 4.8438L1.5645 15.1484A4.5 4.5 0 0 1 4 14.4297c2.5597-.0075 4.6248 2.1585 4.4941 4.7148l3.2168-5.5723-3.6094-6.25c-.4499-.7793-.6322-1.6394-.5878-2.4784z", "linkedin": "M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z", "tiktok": "M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"};
+const marca = (p, cor) => `<svg class="ico" viewBox="0 0 24 24"${cor === "" ? "" : ` style="color:${cor || `var(--${p})`}"`} aria-hidden="true"><path d="${ICO[p]}"/></svg>`;
 const PER_LBL = {"7d":"7 dias", "30d":"30 dias", "mes":"Mês atual", "mesant":"Mês anterior"};
 const SIMB = {BRL:"R$", USD:"US$", EUR:"€"};
 const simb = cod => SIMB[cod] || cod || "R$";
@@ -461,7 +470,7 @@ function legHTML(por, total, moedaP, sm, porR){
   if (!ps.length) return `<div class="leg${sm?" sm":""}"><span class="nota">Sem investimento no período</span></div>`;
   const pr = porR || por;
   return `<div class="leg${sm?" sm":""}">${ps.map(p => { const mo = simb(typeof moedaP === "string" ? moedaP : moedaP[p]);
-    return `<span><i style="background:var(--${p})"></i>${PLATS[p]} <b>${sm ? brlK(por[p], mo) : brl(por[p], mo)}</b>${sm ? "" : ` · ${Math.round(pr[p]/total*100)}%`}</span>`; }).join("")}</div>`;
+    return `<span>${marca(p)}${PLATS[p]} <b>${sm ? brlK(por[p], mo) : brl(por[p], mo)}</b>${sm ? "" : ` · ${Math.round(pr[p]/total*100)}%`}</span>`; }).join("")}</div>`;
 }
 function sparkSVG(pts, moeda){
   if (!pts || !pts.length) return "";
@@ -527,7 +536,7 @@ function cardHTML(c){
       ${metrica("ROAS", A.spR && A.fatR ? nf2.format(A.fatR/A.spR) + "x" : "—", "")}
     </div>`;
   corpo += `<div>${stackHTML(A.porR, A.spR, true)}${legHTML(A.por, A.spR, A.moedaP, true, A.porR)}</div>`;
-  if (m.spark) corpo += `<div><div class="spark">${sparkSVG(m.spark, mo)}</div><div class="spark-l"><span>Investimento diário · 30 dias</span><span>dados até ${dm(m.ate)}</span></div></div>`;
+  if (m.spark) corpo += `<div><div class="spark">${sparkSVG(m.spark, mo)}</div><div class="spark-l"><span>Investimento diário · 30 dias${m.misto && m.A.mo === "BRL" ? " · em R$" : ""}</span><span>dados até ${dm(m.ate)}</span></div></div>`;
   if (m.s.ok === false) corpo = `<div class="empty" style="padding:18px">Não consegui ler os dados deste dash.</div>`;
   const badges = [c.status === "pausado" && sa.cls !== "neu" ? `<span class="pill neu">Pausado</span>` : "", m.lct ? `<span class="pill neu">${esc(m.lct)}</span>` : ""].join("");
   return `<article class="card">
@@ -584,7 +593,7 @@ function colunas(){
     {k:"inv", t:"Investimento", csv:"Investimento (R$)", v:r => r.A.spR, f:r => invTxt(r.m, r.A), sum:"sp"},
     {k:"dinv", t:"Δ invest.", v:r => pct(r.A.spR, r.B.spR) ?? -1e9, f:r => delta(r.A.spR, r.B.spR)},
   ];
-  if (plat === "todas" && ps.length > 1) ps.forEach(p => cols.push({k:"p_"+p, t:`<i style="background:var(--${p})"></i>${PLATS[p]}`, csv:PLATS[p] + " (R$)", v:r => r.A.porR[p]||0, f:r => r.A.por[p] ? brl(r.A.por[p], simb(r.A.moedaP[p])) : "—", z:r => !r.A.por[p], sumP:p, cls:p===ps[0]?"sep":""}));
+  if (plat === "todas" && ps.length > 1) ps.forEach(p => cols.push({k:"p_"+p, t:`${marca(p)}${PLATS[p]}`, csv:PLATS[p] + " (R$)", v:r => r.A.porR[p]||0, f:r => r.A.por[p] ? brl(r.A.por[p], simb(r.A.moedaP[p])) : "—", z:r => !r.A.por[p], sumP:p, cls:p===ps[0]?"sep":""}));
   cols.push(
     {k:"imp", t:"Impressões", v:r => r.A.imp, f:r => r.A.imp ? int(r.A.imp) : "—", sum:"imp", cls:"sep"},
     {k:"clk", t:"Cliques", v:r => r.A.clk, f:r => r.A.clk ? int(r.A.clk) : "—", sum:"clk"},
@@ -645,7 +654,7 @@ function renderMeses(){
   });
   const pl = Object.keys(PLATS).filter(p => porP[p] && porP[p].some(x => x));
   $("#meses").innerHTML = `<table><thead><tr><th>Cliente</th>${yms.map(ym => `<th>${mesLbl(ym)}${ym === ymHoje ? " (parcial)" : ""}</th>`).join("")}</tr></thead>
-    <tbody>${linhas.join("")}${plat === "todas" && pl.length > 1 ? pl.map((p,j) => `<tr><td style="${j?"":"border-top:2px solid var(--border2)"}"><i class="dot" style="background:var(--${p})"></i>${PLATS[p]}</td>${porP[p].map(x => `<td class="${x?"":"z"}" style="${j?"":"border-top:2px solid var(--border2)"}">${x ? brl(x) : "—"}</td>`).join("")}</tr>`).join("") : ""}</tbody>
+    <tbody>${linhas.join("")}${plat === "todas" && pl.length > 1 ? pl.map((p,j) => `<tr><td style="${j?"":"border-top:2px solid var(--border2)"}">${marca(p)}${PLATS[p]}</td>${porP[p].map(x => `<td class="${x?"":"z"}" style="${j?"":"border-top:2px solid var(--border2)"}">${x ? brl(x) : "—"}</td>`).join("")}</tr>`).join("") : ""}</tbody>
     <tfoot><tr><td>Total</td>${tot.map(x => `<td>${brl(x)}</td>`).join("")}</tr></tfoot></table>`;
 }
 
@@ -671,7 +680,7 @@ function renderBarra(){
   document.querySelectorAll("#segPer button").forEach(b => b.classList.toggle("on", b.dataset.v === periodo));
   const presentes = Object.keys(PLATS).filter(p => visiveis().some(c => ((ST.clientes[c.repo]||{}).plataformas||[]).includes(p)));
   if (plat !== "todas" && !presentes.includes(plat)) plat = "todas";
-  $("#segPlat").innerHTML = `<button data-v="todas" class="${plat==="todas"?"on":""}">Todas</button>` + presentes.map(p => `<button data-v="${p}" class="${plat===p?"on":""}"><i style="background:var(--${p})"></i>${PLATS[p]}</button>`).join("");
+  $("#segPlat").innerHTML = `<button data-v="todas" class="${plat==="todas"?"on":""}">Todas</button>` + presentes.map(p => `<button data-v="${p}" class="pl${plat===p?" on":""}" style="--c:var(--${p});--f:var(--${p}-fg,#fff)">${marca(p, "")}${PLATS[p]}</button>`).join("");
   const J = janelas(); $("#pinfo").textContent = `${dm(J.a[0])} a ${dm(J.a[1])} · comparado com ${J.cmp} · cada cliente até o último dia que o dash publicou`;
 }
 
@@ -779,7 +788,6 @@ $("#segPlat").onclick = e => { const b = e.target.closest("button"); if (b){ pla
 $("#chips").onclick = e => { const b = e.target.closest(".chip"); if (b){ filtroSeg = b.dataset.t; renderTudo(); } };
 $("#resp").onchange = e => { filtroResp = e.target.value; renderTudo(); };
 $("#busca").oninput = renderGrid; $("#ordem").onchange = renderGrid;
-$("#recarregar").onclick = () => carregar();
 function aplicarTema(t){ if (t) document.documentElement.dataset.theme = t; else delete document.documentElement.dataset.theme; }
 aplicarTema(lsGet(LS_THEME));
 $("#tema").onclick = () => {

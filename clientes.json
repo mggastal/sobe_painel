@@ -70,10 +70,7 @@
       "formato": "template",
       "cor": "#AD96DC",
       "logo": true,
-      "links": [],
-      "moedas": {
-        "linkedin": "USD"
-      }
+      "links": []
     },
     {
       "repo": "sobe_gemte",

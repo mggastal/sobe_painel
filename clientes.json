@@ -2,14 +2,8 @@
   "_ajuda": "Cadastro do Painel Sobé. status: ativo | pausado | arquivado. segmento: Geral | Infoproduto. responsavel: quem atende. formato diz ao coletor como ler os dados do dash (template, embed, cidades, unibrasil). pagina = arquivo HTML lido no formato embed (padrão: index). somar = outros repos somados neste cliente. moedas = moeda por plataforma quando difere da do dash (ex.: {\"google\": \"USD\"}). moeda_custo = moeda do custo por conversão/CPM/CPC quando o cliente tem moedas diferentes (padrão R$).",
   "ferramentas": [
     {
-      "nome": "Mapa Mental",
-      "descricao": "Estruturas de campanha Google, Meta, LinkedIn e TikTok",
+      "nome": "Mapa Mental / Checklist",
       "url": "https://mggastal.github.io/sobe_mapamental/"
-    },
-    {
-      "nome": "Checklist de Performance",
-      "descricao": "Rotina de revisão das contas",
-      "url": "https://mggastal.github.io/sobe_checklist/"
     }
   ],
   "clientes": [

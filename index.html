@@ -57,6 +57,7 @@ button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit
 .tab:hover{color:#fff}
 .tab.on{color:#fff;border-bottom-color:#fff}
 .tab .cnt{font-size:11px;opacity:.6;margin-left:4px}
+a.tab{text-decoration:none}
 
 .wrap{max-width:1320px;margin:0 auto;padding:18px 24px 40px}
 .page{display:none}.page.on{display:block}
@@ -163,12 +164,6 @@ td.z{color:var(--muted)}
 th i,td i.dot{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:5px;vertical-align:0}
 .sep{border-left:1px solid var(--border)}
 
-/* ferramentas */
-.tools{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(280px,100%),1fr));gap:14px}
-.tool{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;text-decoration:none;display:block;box-shadow:var(--shadow)}
-.tool:hover{border-color:var(--text2)}
-.tool b{font-size:15px}.tool p{color:var(--muted);font-size:12.5px;margin-top:4px}
-
 /* admin */
 .gate{max-width:380px;margin:30px auto;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:24px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:10px}
 .gate input{padding:9px 12px;border:1px solid var(--border2);border-radius:9px;background:var(--card2)}
@@ -217,7 +212,7 @@ th i,td i.dot{display:inline-block;width:8px;height:8px;border-radius:2px;margin
     <button class="tab on" data-p="geral">Visão geral</button>
     <button class="tab" data-p="tabela">Tabela</button>
     <button class="tab" data-p="meses">Por mês</button>
-    <button class="tab" data-p="ferramentas">Ferramentas</button>
+    <a class="tab" id="tabMapa" href="https://mggastal.github.io/sobe_mapamental/" target="_blank" rel="noopener">Mapa / Checklist ↗</a>
     <button class="tab" data-p="ex">Ex-clientes<span class="cnt" id="cntEx"></span></button>
     <button class="tab" data-p="admin">⚙ Admin</button>
   </nav>
@@ -260,11 +255,6 @@ th i,td i.dot{display:inline-block;width:8px;height:8px;border-radius:2px;margin
   <section class="page" id="p-meses">
     <div class="sec-h"><div><h2>Investimento por mês</h2><div class="sub">Últimos 6 meses, clientes ativos e pausados, cada um na sua moeda. Totais em R$ (dólar pela cotação média do mês).</div></div></div>
     <div class="tbl-w" id="meses"></div>
-  </section>
-
-  <section class="page" id="p-ferramentas">
-    <div class="sec-h"><div><h2>Ferramentas da agência</h2><div class="sub">Links fixos, editáveis em clientes.json</div></div></div>
-    <div class="tools" id="tools"></div>
   </section>
 
   <section class="page" id="p-ex">
@@ -666,7 +656,8 @@ function renderMeses(){
 }
 
 function renderTools(){
-  $("#tools").innerHTML = (CAD.ferramentas || []).map(f => `<a class="tool" href="${esc(f.url)}" target="_blank" rel="noopener"><b>${esc(f.nome)} ↗</b><p>${esc(f.descricao || "")}</p></a>`).join("");
+  const mapa = (CAD.ferramentas || [])[0];
+  if (mapa) $("#tabMapa").href = mapa.url;
 }
 function renderEx(){
   const ex = CAD.clientes.filter(c => c.status === "arquivado");
@@ -788,7 +779,7 @@ function irPara(p){
   $("#pinfo").style.display = p === "meses" ? "none" : "";
   if (location.hash.slice(1) !== p) history.replaceState(null, "", "#" + p);
 }
-$("#tabs").onclick = e => { const t = e.target.closest(".tab"); if (t) irPara(t.dataset.p); };
+$("#tabs").onclick = e => { const t = e.target.closest(".tab"); if (t && t.dataset.p) irPara(t.dataset.p); };
 addEventListener("hashchange", () => irPara(location.hash.slice(1)));
 $("#segPer").onclick = e => { const b = e.target.closest("button"); if (b){ periodo = b.dataset.v; lsSet(LS_PER, periodo); renderTudo(); } };
 $("#segPlat").onclick = e => { const b = e.target.closest("button"); if (b){ plat = b.dataset.v; renderTudo(); } };
